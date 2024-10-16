@@ -9,7 +9,7 @@ import java.util.*;
 
 public class DependencyParser {
 
-    private List<Component> components = new ArrayList<>();
+    private Set<Component> components = new HashSet<>();
     private Map<String, Component> componentMap = new HashMap<>();
 
     public void parseXML(File xmlFile, File jarFile) throws Exception {
@@ -40,8 +40,8 @@ public class DependencyParser {
                 //create a new component for the package
                 Component component = new Component();
                 component.setName(packageName);
-                List<String> composedClasses = new ArrayList<>();
-                List<String> providedInterfaces = new ArrayList<>();
+                Set<String> composedClasses = new HashSet<>();
+                Set<String> providedInterfaces = new HashSet<>();
 
                 //process each class from the package
                 NodeList classList = packageElement.getElementsByTagName("class");
@@ -98,7 +98,7 @@ public class DependencyParser {
 
                 if (component != null) {
                     //creating the list of required interfaces for this component
-                    List<String> requiredInterfaces = new ArrayList<>();
+                    Set<String> requiredInterfaces = new HashSet<>();
 
                     NodeList classList = packageElement.getElementsByTagName("class");
                     for (int j = 0; j < classList.getLength(); j++) {

@@ -1,10 +1,11 @@
 import java.util.List;
+import java.util.Set;
 
 public class Component {
     private String name;
-    private List<String> composedClasses;
-    private List<String> providedInterfaces;
-    private List<String> requiredInterfaces;
+    private Set<String> composedClasses;
+    private Set<String> providedInterfaces;
+    private Set<String> requiredInterfaces;
 
     public Component() {
     }
@@ -17,27 +18,27 @@ public class Component {
         this.name = name;
     }
 
-    public List<String> getComposedClasses() {
+    public Set<String> getComposedClasses() {
         return composedClasses;
     }
 
-    public void setComposedClasses(List<String> composedClasses) {
+    public void setComposedClasses(Set<String> composedClasses) {
         this.composedClasses = composedClasses;
     }
 
-    public List<String> getProvidedInterfaces() {
+    public Set<String> getProvidedInterfaces() {
         return providedInterfaces;
     }
 
-    public void setProvidedInterfaces(List<String> providedInterfaces) {
+    public void setProvidedInterfaces(Set<String> providedInterfaces) {
         this.providedInterfaces = providedInterfaces;
     }
 
-    public List<String> getRequiredInterfaces() {
+    public Set<String> getRequiredInterfaces() {
         return requiredInterfaces;
     }
 
-    public void setRequiredInterfaces(List<String> requiredInterfaces) {
+    public void setRequiredInterfaces(Set<String> requiredInterfaces) {
         this.requiredInterfaces = requiredInterfaces;
     }
 
