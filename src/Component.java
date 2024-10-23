@@ -1,11 +1,11 @@
-import java.util.List;
 import java.util.Set;
 
 public class Component {
     private String name;
-    private Set<String> composedClasses;
+    private Set<String> composedParts;
     private Set<String> providedInterfaces;
     private Set<String> requiredInterfaces;
+    private Set<String> explicitImplementation;
 
     public Component() {
     }
@@ -18,12 +18,12 @@ public class Component {
         this.name = name;
     }
 
-    public Set<String> getComposedClasses() {
-        return composedClasses;
+    public Set<String> getComposedParts() {
+        return composedParts;
     }
 
-    public void setComposedClasses(Set<String> composedClasses) {
-        this.composedClasses = composedClasses;
+    public void setComposedParts(Set<String> composedParts) {
+        this.composedParts = composedParts;
     }
 
     public Set<String> getProvidedInterfaces() {
@@ -43,4 +43,11 @@ public class Component {
     }
 
 
+    public Set<String> getExplicitImplementation() {
+        return explicitImplementation;
+    }
+
+    public void setExplicitImplementation(Set<String> explicitImplementation) {
+        this.explicitImplementation = explicitImplementation;
+    }
 }
