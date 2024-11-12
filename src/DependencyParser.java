@@ -102,11 +102,8 @@ public class DependencyParser {
 
                                         if (outboundClass.isInterface() || Modifier.isAbstract(outboundClass.getModifiers())) {
                                             //ignore classes from the java.lang package
-                                            if (!outboundClass.getPackage().getName().startsWith("java.lang")) {
-                                                //if (!providedInterfaces.contains(outboundName))
+                                            if (!outboundClass.getPackage().getName().startsWith("java.lang"))
                                                     requiredInterfaces.add(outboundName);
-
-                                            }
                                         }
 
                                     } catch (ClassNotFoundException e) {
@@ -152,6 +149,14 @@ public class DependencyParser {
             DependencyParser parser = new DependencyParser();
             parser.parseXML(xmlFile, jarFileName);
             parser.printComponents();
+
+            // Generate PlantUML syntax
+            PlantUMLGenerator umlGenerator = new PlantUMLGenerator(parser.components);
+            String plantUMLText = umlGenerator.generatePlantUML();
+
+            // Display or further process the PlantUML syntax for web server
+            System.out.println("PlantUML Text:\n" + plantUMLText);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
