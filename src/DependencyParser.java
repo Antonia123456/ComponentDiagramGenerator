@@ -50,7 +50,7 @@ public class DependencyParser {
                 if (!"yes".equals(confirmedAttribute))
                     continue;
 
-                String packageName = packageElement.getElementsByTagName("name").item(0).getTextContent();
+                String packageName= packageElement.getElementsByTagName("name").item(0).getTextContent();
 
                 //create a new component for the package
                 Component component = new Component();
@@ -150,11 +150,8 @@ public class DependencyParser {
             parser.parseXML(xmlFile, jarFileName);
             parser.printComponents();
 
-            // Generate PlantUML syntax
             PlantUMLGenerator umlGenerator = new PlantUMLGenerator(parser.components);
             String plantUMLText = umlGenerator.generatePlantUML();
-
-            // Display or further process the PlantUML syntax for web server
             System.out.println("PlantUML Text:\n" + plantUMLText);
 
         } catch (Exception e) {
