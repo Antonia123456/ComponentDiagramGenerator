@@ -18,7 +18,7 @@ public class PlantUMLGenerator {
             //default name in case of default package
             String packageName = component.getName().isEmpty() ? "default" : component.getName();
 
-            umlBuilder.append("package ").append(packageName).append(" {\n");
+            umlBuilder.append("component ").append(packageName).append(" {\n");
 
             for (String className : component.getComposedParts()) {
                 if (!component.getProvidedInterfaces().contains(className)) { //avoid double-adding interfaces
@@ -42,12 +42,14 @@ public class PlantUMLGenerator {
                 for (Component target : components) {
                     if (target.getProvidedInterfaces().contains(requiredInterface)) {
                         String toPackageName = target.getName().isEmpty() ? "default" : target.getName();
+
+                        //remove package prefix
+                        String simpleInterfaceName = requiredInterface.substring(requiredInterface.lastIndexOf('.') + 1);
+
                         umlBuilder.append(fromPackageName)
-                                .append(" --> ")
+                                .append(" -(0- ")
                                 .append(toPackageName)
-                                .append(" : uses ")
-                                .append(requiredInterface)
-                                .append("\n");
+                                .append(" : \"\"").append(simpleInterfaceName).append("\"\"\n");
                         break;
                     }
                 }
