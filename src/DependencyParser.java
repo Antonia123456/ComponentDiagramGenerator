@@ -143,8 +143,11 @@ public class DependencyParser {
 
     public static void main(String[] args) {
         try {
-            File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\firstTryLicenceJAR.xml");
-            String jarFileName="D:\\Licenta\\ComponentDiagramLicense\\src\\FirstTryLicence.jar";
+            //File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\firstTryLicenceJAR.xml");
+            //String jarFileName="D:\\Licenta\\ComponentDiagramLicense\\src\\FirstTryLicence.jar";
+
+            File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\complexExampleJAR.xml");
+            String jarFileName="D:\\Licenta\\ComponentDiagramLicense\\src\\ComplexExample.jar";
 
             DependencyParser parser = new DependencyParser();
             parser.parseXML(xmlFile, jarFileName);
