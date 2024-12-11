@@ -141,6 +141,26 @@ public class DependencyParser {
         }
     }
 
+    public boolean hasExplicitImplementations() {
+        for (Component component : components) {
+            if (!component.getExplicitImplementation().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void generateBadDesignReport() {
+        System.out.println("This is a bad design. Explicit dependencies detected on concrete classes.");
+        for (Component component : components) {
+            if (!component.getExplicitImplementation().isEmpty()) {
+                System.out.println("Component " + component.getName() +
+                        " has explicit dependencies for the following classes: " +
+                        component.getExplicitImplementation());
+            }
+        }
+    }
+
     public static void main(String[] args) {
         try {
             //File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\firstTryLicenceJAR.xml");
@@ -153,9 +173,13 @@ public class DependencyParser {
             parser.parseXML(xmlFile, jarFileName);
             parser.printComponents();
 
-            PlantUMLGenerator umlGenerator = new PlantUMLGenerator(parser.components);
-            String plantUMLText = umlGenerator.generatePlantUML();
-            System.out.println("PlantUML Text:\n" + plantUMLText);
+            if (parser.hasExplicitImplementations()) {
+                parser.generateBadDesignReport();
+            } else {
+                PlantUMLGenerator umlGenerator = new PlantUMLGenerator(parser.components);
+                String plantUMLText = umlGenerator.generatePlantUML();
+                System.out.println("PlantUML Text:\n" + plantUMLText);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
