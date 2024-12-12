@@ -12,6 +12,11 @@ public class DependencyParser {
 
     private Set<Component> components = new HashSet<>();
 
+    private List<String> ignoreList = Arrays.asList(
+            "java.lang",
+            "java.util"//example
+    );
+
     public void parseXML(File xmlFile, String jarFileName) throws Exception {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -101,9 +106,12 @@ public class DependencyParser {
                                         Class<?> outboundClass =loader.loadClass(outboundName);
 
                                         if (outboundClass.isInterface() || Modifier.isAbstract(outboundClass.getModifiers())) {
-                                            //ignore classes from the java.lang package
-                                            if (!outboundClass.getPackage().getName().startsWith("java.lang"))
-                                                    requiredInterfaces.add(outboundName);
+                                            //ignore classes from ignoreList
+                                            boolean shouldIgnore = ignoreList.stream()
+                                                    .anyMatch(ignore -> outboundClass.getName().startsWith(ignore));
+                                            if (!shouldIgnore) {
+                                                requiredInterfaces.add(outboundName);
+                                            }
                                         }
 
                                     } catch (ClassNotFoundException e) {
