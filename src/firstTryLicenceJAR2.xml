@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE dependencies SYSTEM "https://depfind.sourceforge.io/dtd/dependencies.dtd">
+
+<dependencies>
+    <package confirmed="yes">
+        <name></name>
+        <class confirmed="yes">
+            <name>Main</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <feature confirmed="yes">
+                <name>Main.Main()</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>Main.main(java.lang.String[])</name>
+                <outbound type="class" confirmed="no">java.lang.String</outbound>
+                <outbound type="feature" confirmed="yes">package1.Class11.Class11()</outbound>
+                <outbound type="class" confirmed="yes">package1.Interface1</outbound>
+                <outbound type="feature" confirmed="yes">package2.Class21.Class21()</outbound>
+                <outbound type="feature" confirmed="yes">package2.Interface2.methodInterface2(package1.Interface1)</outbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="no">
+        <name>java.io</name>
+        <class confirmed="no">
+            <name>java.io.PrintStream</name>
+            <inbound type="feature" confirmed="yes">package1.Class11.methodInterface1()</inbound>
+            <inbound type="feature" confirmed="yes">package1.Class12.methodInterface1()</inbound>
+            <inbound type="feature" confirmed="yes">package2.Class21.methodInterface2(package1.Interface1)</inbound>
+            <inbound type="feature" confirmed="yes">package2.Class22.methodInterface2(package1.Interface1)</inbound>
+            <feature confirmed="no">
+                <name>java.io.PrintStream.println(java.lang.String)</name>
+                <inbound type="feature" confirmed="yes">package1.Class11.methodInterface1()</inbound>
+                <inbound type="feature" confirmed="yes">package1.Class12.methodInterface1()</inbound>
+                <inbound type="feature" confirmed="yes">package2.Class21.methodInterface2(package1.Interface1)</inbound>
+                <inbound type="feature" confirmed="yes">package2.Class22.methodInterface2(package1.Interface1)</inbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="no">
+        <name>java.lang</name>
+        <class confirmed="no">
+            <name>java.lang.Object</name>
+            <inbound type="class" confirmed="yes">Main</inbound>
+            <inbound type="class" confirmed="yes">package1.Class11</inbound>
+            <inbound type="class" confirmed="yes">package1.Class12</inbound>
+            <inbound type="class" confirmed="yes">package1.Interface1</inbound>
+            <inbound type="class" confirmed="yes">package2.Class21</inbound>
+            <inbound type="class" confirmed="yes">package2.Class22</inbound>
+            <inbound type="class" confirmed="yes">package2.Interface2</inbound>
+            <inbound type="class" confirmed="yes">package3.Class3</inbound>
+            <feature confirmed="no">
+                <name>java.lang.Object.Object()</name>
+                <inbound type="feature" confirmed="yes">Main.Main()</inbound>
+                <inbound type="feature" confirmed="yes">package1.Class11.Class11()</inbound>
+                <inbound type="feature" confirmed="yes">package1.Class12.Class12()</inbound>
+                <inbound type="feature" confirmed="yes">package2.Class21.Class21()</inbound>
+                <inbound type="feature" confirmed="yes">package2.Class22.Class22()</inbound>
+                <inbound type="feature" confirmed="yes">package3.Class3.Class3()</inbound>
+            </feature>
+        </class>
+        <class confirmed="no">
+            <name>java.lang.String</name>
+            <inbound type="feature" confirmed="yes">Main.main(java.lang.String[])</inbound>
+            <inbound type="feature" confirmed="yes">package1.Class11.methodInterface1()</inbound>
+            <inbound type="feature" confirmed="yes">package1.Class12.methodInterface1()</inbound>
+            <inbound type="feature" confirmed="yes">package2.Class21.methodInterface2(package1.Interface1)</inbound>
+            <inbound type="feature" confirmed="yes">package2.Class22.methodInterface2(package1.Interface1)</inbound>
+        </class>
+        <class confirmed="no">
+            <name>java.lang.System</name>
+            <feature confirmed="no">
+                <name>java.lang.System.out</name>
+                <inbound type="feature" confirmed="yes">package1.Class11.methodInterface1()</inbound>
+                <inbound type="feature" confirmed="yes">package1.Class12.methodInterface1()</inbound>
+                <inbound type="feature" confirmed="yes">package2.Class21.methodInterface2(package1.Interface1)</inbound>
+                <inbound type="feature" confirmed="yes">package2.Class22.methodInterface2(package1.Interface1)</inbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="yes">
+        <name>package1</name>
+        <class confirmed="yes">
+            <name>package1.Class11</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <outbound type="class" confirmed="yes">package1.Interface1</outbound>
+            <feature confirmed="yes">
+                <name>package1.Class11.Class11()</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+                <inbound type="feature" confirmed="yes">Main.main(java.lang.String[])</inbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>package1.Class11.methodInterface1()</name>
+                <outbound type="class" confirmed="no">java.io.PrintStream</outbound>
+                <outbound type="feature" confirmed="no">java.io.PrintStream.println(java.lang.String)</outbound>
+                <outbound type="class" confirmed="no">java.lang.String</outbound>
+                <outbound type="feature" confirmed="no">java.lang.System.out</outbound>
+            </feature>
+        </class>
+        <class confirmed="yes">
+            <name>package1.Class12</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <outbound type="class" confirmed="yes">package1.Interface1</outbound>
+            <feature confirmed="yes">
+                <name>package1.Class12.Class12()</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+                <inbound type="feature" confirmed="yes">package3.Class3.Class3()</inbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>package1.Class12.methodInterface1()</name>
+                <outbound type="class" confirmed="no">java.io.PrintStream</outbound>
+                <outbound type="feature" confirmed="no">java.io.PrintStream.println(java.lang.String)</outbound>
+                <outbound type="class" confirmed="no">java.lang.String</outbound>
+                <outbound type="feature" confirmed="no">java.lang.System.out</outbound>
+                <inbound type="feature" confirmed="yes">package3.Class3.Class3()</inbound>
+            </feature>
+        </class>
+        <class confirmed="yes">
+            <name>package1.Interface1</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <inbound type="feature" confirmed="yes">Main.main(java.lang.String[])</inbound>
+            <inbound type="class" confirmed="yes">package1.Class11</inbound>
+            <inbound type="class" confirmed="yes">package1.Class12</inbound>
+            <inbound type="feature" confirmed="yes">package2.Class21.methodInterface2(package1.Interface1)</inbound>
+            <inbound type="feature" confirmed="yes">package2.Class22.methodInterface2(package1.Interface1)</inbound>
+            <inbound type="feature" confirmed="yes">package2.Interface2.methodInterface2(package1.Interface1)</inbound>
+            <feature confirmed="yes">
+                <name>package1.Interface1.methodInterface1()</name>
+                <inbound type="feature" confirmed="yes">package2.Class21.methodInterface2(package1.Interface1)</inbound>
+                <inbound type="feature" confirmed="yes">package2.Class22.methodInterface2(package1.Interface1)</inbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="yes">
+        <name>package2</name>
+        <class confirmed="yes">
+            <name>package2.Class21</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <outbound type="class" confirmed="yes">package2.Interface2</outbound>
+            <feature confirmed="yes">
+                <name>package2.Class21.Class21()</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+                <inbound type="feature" confirmed="yes">Main.main(java.lang.String[])</inbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>package2.Class21.methodInterface2(package1.Interface1)</name>
+                <outbound type="class" confirmed="no">java.io.PrintStream</outbound>
+                <outbound type="feature" confirmed="no">java.io.PrintStream.println(java.lang.String)</outbound>
+                <outbound type="class" confirmed="no">java.lang.String</outbound>
+                <outbound type="feature" confirmed="no">java.lang.System.out</outbound>
+                <outbound type="class" confirmed="yes">package1.Interface1</outbound>
+                <outbound type="feature" confirmed="yes">package1.Interface1.methodInterface1()</outbound>
+            </feature>
+        </class>
+        <class confirmed="yes">
+            <name>package2.Class22</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <outbound type="class" confirmed="yes">package2.Interface2</outbound>
+            <feature confirmed="yes">
+                <name>package2.Class22.Class22()</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>package2.Class22.methodInterface2(package1.Interface1)</name>
+                <outbound type="class" confirmed="no">java.io.PrintStream</outbound>
+                <outbound type="feature" confirmed="no">java.io.PrintStream.println(java.lang.String)</outbound>
+                <outbound type="class" confirmed="no">java.lang.String</outbound>
+                <outbound type="feature" confirmed="no">java.lang.System.out</outbound>
+                <outbound type="class" confirmed="yes">package1.Interface1</outbound>
+                <outbound type="feature" confirmed="yes">package1.Interface1.methodInterface1()</outbound>
+            </feature>
+        </class>
+        <class confirmed="yes">
+            <name>package2.Interface2</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <inbound type="class" confirmed="yes">package2.Class21</inbound>
+            <inbound type="class" confirmed="yes">package2.Class22</inbound>
+            <feature confirmed="yes">
+                <name>package2.Interface2.methodInterface2(package1.Interface1)</name>
+                <outbound type="class" confirmed="yes">package1.Interface1</outbound>
+                <inbound type="feature" confirmed="yes">Main.main(java.lang.String[])</inbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="yes">
+        <name>package3</name>
+        <class confirmed="yes">
+            <name>package3.Class3</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <feature confirmed="yes">
+                <name>package3.Class3.Class3()</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+                <outbound type="feature" confirmed="yes">package1.Class12.Class12()</outbound>
+                <outbound type="feature" confirmed="yes">package1.Class12.methodInterface1()</outbound>
+            </feature>
+        </class>
+    </package>
+</dependencies>

@@ -14,7 +14,8 @@ public class DependencyParser {
 
     private List<String> ignoreList = Arrays.asList(
             "java.lang",
-            "java.util"//example
+            "java.io",
+            "java.util" // example
     );
 
     public void parseXML(File xmlFile, String jarFileName) throws Exception {
@@ -25,14 +26,14 @@ public class DependencyParser {
         document.getDocumentElement().normalize();
         NodeList packageList = document.getElementsByTagName("package");
 
-        //load classes from the JAR file
+        // Load classes from the JAR file
         JarFile jarFile = new JarFile(new File(jarFileName));
         URLClassLoader loader = new URLClassLoader(new URL[]{new File(jarFileName).toURI().toURL()});
 
         jarFile.stream().forEach(entry -> {
             if (entry.getName().endsWith(".class")) {
                 try {
-                    //convert to fully qualified class name format used in Java + remove the ".class" extension to get actual class name
+                    // Convert to fully qualified class name format used in Java + remove the ".class" extension to get actual class name
                     String className = entry.getName().replace('/', '.').replace(".class", "");
                     Class<?> clazz = loader.loadClass(className);
 
@@ -42,9 +43,7 @@ public class DependencyParser {
             }
         });
 
-
-
-        //process each package node
+        // Process each package node
         for (int i = 0; i < packageList.getLength(); i++) {
             Node packageNode = packageList.item(i);
 
@@ -55,9 +54,9 @@ public class DependencyParser {
                 if (!"yes".equals(confirmedAttribute))
                     continue;
 
-                String packageName= packageElement.getElementsByTagName("name").item(0).getTextContent();
+                String packageName = packageElement.getElementsByTagName("name").item(0).getTextContent();
 
-                //create a new component for the package
+                // Create a new component for the package
                 Component component = new Component();
                 component.setName(packageName);
                 Set<String> composedParts = new HashSet<>();
@@ -65,7 +64,7 @@ public class DependencyParser {
                 Set<String> requiredInterfaces = new HashSet<>();
                 Set<String> explicitImplementation = new HashSet<>();
 
-                //process each class from the package
+                // Process each class from the package
                 NodeList classList = packageElement.getElementsByTagName("class");
                 for (int j = 0; j < classList.getLength(); j++) {
                     Node classNode = classList.item(j);
@@ -77,14 +76,14 @@ public class DependencyParser {
                             Class<?> clazz = loader.loadClass(className);
                             composedParts.add(className);
 
-                            if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())){
+                            if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
                                 providedInterfaces.add(clazz.getName());
                             }
 
-                            //check if a class explicitly extends a concrete class
+                            // Check if a class explicitly extends a concrete class
                             if (!clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers())) {
                                 Class<?> superclass = clazz.getSuperclass();
-                                if (superclass!=null && !superclass.isInterface() && !Modifier.isAbstract(superclass.getModifiers()) && !superclass.getName().equals("java.lang.Object"))
+                                if (superclass != null && !superclass.isInterface() && !Modifier.isAbstract(superclass.getModifiers()) && !superclass.getName().equals("java.lang.Object"))
                                     explicitImplementation.add(className);
                             }
 
@@ -93,6 +92,7 @@ public class DependencyParser {
                             e.printStackTrace();
                         }
 
+                        // Process outbound dependencies of type "class"
                         NodeList outboundNodes = classElement.getElementsByTagName("outbound");
                         for (int k = 0; k < outboundNodes.getLength(); k++) {
                             Node outboundNode = outboundNodes.item(k);
@@ -103,10 +103,10 @@ public class DependencyParser {
 
                                 if (outboundType.equals("class")) {
                                     try {
-                                        Class<?> outboundClass =loader.loadClass(outboundName);
+                                        Class<?> outboundClass = loader.loadClass(outboundName);
 
                                         if (outboundClass.isInterface() || Modifier.isAbstract(outboundClass.getModifiers())) {
-                                            //ignore classes from ignoreList
+                                            // Ignore classes from ignoreList
                                             boolean shouldIgnore = ignoreList.stream()
                                                     .anyMatch(ignore -> outboundClass.getName().startsWith(ignore));
                                             if (!shouldIgnore) {
@@ -121,12 +121,60 @@ public class DependencyParser {
                             }
                         }
 
+                        // Process outbound dependencies of type "feature"
+                        NodeList featureNodes = classElement.getElementsByTagName("feature");
+                        for (int k = 0; k < featureNodes.getLength(); k++) {
+                            Node featureNode = featureNodes.item(k);
+                            if (featureNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
+                            NodeList outbounds = ((Element) featureNode).getElementsByTagName("outbound");
+                            for (int l = 0; l < outbounds.getLength(); l++) {
+                                Node outboundNode = outbounds.item(l);
+                                if (outboundNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
+                                Element outboundElement = (Element) outboundNode;
+                                String outboundType = outboundElement.getAttribute("type");
+                                String outboundName = outboundElement.getTextContent();
+
+                                String targetClassName = null;
+                                try {
+                                    if (outboundType.equals("class")) {
+                                        targetClassName = outboundName;
+                                    } else if (outboundType.equals("feature")) {
+                                        // Improved class name extraction from method signatures
+                                        String[] parts = outboundName.split("\\(")[0].split("\\.");
+                                        if (parts.length >= 2) {
+                                            targetClassName = String.join(".",
+                                                    Arrays.copyOf(parts, parts.length - 1));
+                                        }
+                                    }
+
+                                    if (targetClassName != null && !targetClassName.isEmpty()) {
+                                        Class<?> targetClass = loader.loadClass(targetClassName);
+
+                                        boolean shouldIgnore = ignoreList.stream()
+                                                .anyMatch(prefix -> targetClass.getName().startsWith(prefix));
+
+                                        if (!shouldIgnore) {
+                                            if (targetClass.isInterface() ||
+                                                    Modifier.isAbstract(targetClass.getModifiers())) {
+                                                requiredInterfaces.add(targetClassName);
+                                            } else {
+                                                explicitImplementation.add(targetClassName);
+                                            }
+                                        }
+                                    }
+                                } catch (ClassNotFoundException e) {
+                                    System.err.println("Invalid dependency reference: " + targetClassName);
+                                }
+                            }
+                        }
                     }
                 }
 
                 requiredInterfaces.removeAll(providedInterfaces);
 
-                //setting component attributes
+                // Setting component attributes
                 component.setComposedParts(composedParts);
                 component.setProvidedInterfaces(providedInterfaces);
                 component.setRequiredInterfaces(requiredInterfaces);
@@ -135,7 +183,6 @@ public class DependencyParser {
                 components.add(component);
             }
         }
-
     }
 
     public void printComponents() {
@@ -171,11 +218,11 @@ public class DependencyParser {
 
     public static void main(String[] args) {
         try {
-            //File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\firstTryLicenceJAR.xml");
-            //String jarFileName="D:\\Licenta\\ComponentDiagramLicense\\src\\FirstTryLicence.jar";
+            File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\firstTryLicenceJAR2.xml");
+            String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\FirstTryLicence2.jar";
 
-            File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\complexExampleJAR.xml");
-            String jarFileName="D:\\Licenta\\ComponentDiagramLicense\\src\\ComplexExample.jar";
+            // File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\complexExampleJAR.xml");
+            // String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\ComplexExample.jar";
 
             DependencyParser parser = new DependencyParser();
             parser.parseXML(xmlFile, jarFileName);
