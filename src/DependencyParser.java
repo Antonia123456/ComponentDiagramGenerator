@@ -112,6 +112,13 @@ public class DependencyParser {
                                             if (!shouldIgnore) {
                                                 requiredInterfaces.add(outboundName);
                                             }
+                                        } else {
+                                            boolean shouldIgnore = ignoreList.stream()
+                                                    .anyMatch(ignore -> outboundClass.getName().startsWith(ignore));
+                                            if (!shouldIgnore) {
+                                                explicitImplementation.add(outboundName);
+                                            }
+
                                         }
 
                                     } catch (ClassNotFoundException e) {
@@ -120,59 +127,10 @@ public class DependencyParser {
                                 }
                             }
                         }
-
-                        // Process outbound dependencies of type "feature"
-                        NodeList featureNodes = classElement.getElementsByTagName("feature");
-                        for (int k = 0; k < featureNodes.getLength(); k++) {
-                            Node featureNode = featureNodes.item(k);
-                            if (featureNode.getNodeType() != Node.ELEMENT_NODE) continue;
-
-                            NodeList outbounds = ((Element) featureNode).getElementsByTagName("outbound");
-                            for (int l = 0; l < outbounds.getLength(); l++) {
-                                Node outboundNode = outbounds.item(l);
-                                if (outboundNode.getNodeType() != Node.ELEMENT_NODE) continue;
-
-                                Element outboundElement = (Element) outboundNode;
-                                String outboundType = outboundElement.getAttribute("type");
-                                String outboundName = outboundElement.getTextContent();
-
-                                String targetClassName = null;
-                                try {
-                                    if (outboundType.equals("class")) {
-                                        targetClassName = outboundName;
-                                    } else if (outboundType.equals("feature")) {
-                                        // Improved class name extraction from method signatures
-                                        String[] parts = outboundName.split("\\(")[0].split("\\.");
-                                        if (parts.length >= 2) {
-                                            targetClassName = String.join(".",
-                                                    Arrays.copyOf(parts, parts.length - 1));
-                                        }
-                                    }
-
-                                    if (targetClassName != null && !targetClassName.isEmpty()) {
-                                        Class<?> targetClass = loader.loadClass(targetClassName);
-
-                                        boolean shouldIgnore = ignoreList.stream()
-                                                .anyMatch(prefix -> targetClass.getName().startsWith(prefix));
-
-                                        if (!shouldIgnore) {
-                                            if (targetClass.isInterface() ||
-                                                    Modifier.isAbstract(targetClass.getModifiers())) {
-                                                requiredInterfaces.add(targetClassName);
-                                            } else {
-                                                explicitImplementation.add(targetClassName);
-                                            }
-                                        }
-                                    }
-                                } catch (ClassNotFoundException e) {
-                                    System.err.println("Invalid dependency reference: " + targetClassName);
-                                }
-                            }
-                        }
                     }
                 }
 
-                requiredInterfaces.removeAll(providedInterfaces);
+                //requiredInterfaces.removeAll(providedInterfaces);
 
                 // Setting component attributes
                 component.setComposedParts(composedParts);
@@ -218,8 +176,13 @@ public class DependencyParser {
 
     public static void main(String[] args) {
         try {
-            File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\firstTryLicenceJAR2.xml");
-            String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\FirstTryLicence2.jar";
+
+            File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\LicentaJAR.xml");
+            String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\Licenta.jar";
+
+
+            //File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\firstTryLicenceJAR2.xml");
+            //String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\FirstTryLicence2.jar";
 
             // File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\complexExampleJAR.xml");
             // String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\ComplexExample.jar";

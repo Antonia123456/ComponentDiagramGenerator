@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE dependencies SYSTEM "https://depfind.sourceforge.io/dtd/dependencies.dtd">
+
+<dependencies>
+    <package confirmed="no">
+        <name>java.io</name>
+        <class confirmed="no">
+            <name>java.io.PrintStream</name>
+            <inbound type="feature" confirmed="yes">messagecomponents.service.email.EmailServiceImpl.sendMessage(java.lang.String, java.lang.String)</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.service.sms.SMSServiceImpl.sendMessage(java.lang.String, java.lang.String)</inbound>
+            <feature confirmed="no">
+                <name>java.io.PrintStream.println(java.lang.String)</name>
+                <inbound type="feature" confirmed="yes">messagecomponents.service.email.EmailServiceImpl.sendMessage(java.lang.String, java.lang.String)</inbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.service.sms.SMSServiceImpl.sendMessage(java.lang.String, java.lang.String)</inbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="no">
+        <name>java.lang</name>
+        <class confirmed="no">
+            <name>java.lang.Object</name>
+            <inbound type="class" confirmed="yes">messagecomponents.consumer.MessageConsumer</inbound>
+            <inbound type="class" confirmed="yes">messagecomponents.consumer.MyApplication</inbound>
+            <inbound type="class" confirmed="yes">messagecomponents.injector.MessageServiceInjector</inbound>
+            <inbound type="class" confirmed="yes">messagecomponents.injector.email.EmailServiceInjector</inbound>
+            <inbound type="class" confirmed="yes">messagecomponents.injector.sms.SMSServiceInjector</inbound>
+            <inbound type="class" confirmed="yes">messagecomponents.service.MessageService</inbound>
+            <inbound type="class" confirmed="yes">messagecomponents.service.email.EmailServiceImpl</inbound>
+            <inbound type="class" confirmed="yes">messagecomponents.service.sms.SMSServiceImpl</inbound>
+            <inbound type="class" confirmed="yes">messagecomponents.test.MyMessageDITest</inbound>
+            <feature confirmed="no">
+                <name>java.lang.Object.Object()</name>
+                <inbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.MyApplication()</inbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.MyApplication(messagecomponents.service.MessageService)</inbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.injector.email.EmailServiceInjector.EmailServiceInjector()</inbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.injector.sms.SMSServiceInjector.SMSServiceInjector()</inbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.service.email.EmailServiceImpl.EmailServiceImpl()</inbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.service.sms.SMSServiceImpl.SMSServiceImpl()</inbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.test.MyMessageDITest.MyMessageDITest()</inbound>
+            </feature>
+        </class>
+        <class confirmed="no">
+            <name>java.lang.String</name>
+            <inbound type="feature" confirmed="yes">messagecomponents.consumer.MessageConsumer.processMessages(java.lang.String, java.lang.String)</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.processMessages(java.lang.String, java.lang.String)</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.service.MessageService.sendMessage(java.lang.String, java.lang.String)</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.service.email.EmailServiceImpl.sendMessage(java.lang.String, java.lang.String)</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.service.sms.SMSServiceImpl.sendMessage(java.lang.String, java.lang.String)</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.test.MyMessageDITest.main(java.lang.String[])</inbound>
+        </class>
+        <class confirmed="no">
+            <name>java.lang.System</name>
+            <feature confirmed="no">
+                <name>java.lang.System.out</name>
+                <inbound type="feature" confirmed="yes">messagecomponents.service.email.EmailServiceImpl.sendMessage(java.lang.String, java.lang.String)</inbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.service.sms.SMSServiceImpl.sendMessage(java.lang.String, java.lang.String)</inbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="yes">
+        <name>messagecomponents.consumer</name>
+        <class confirmed="yes">
+            <name>messagecomponents.consumer.MessageConsumer</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <inbound type="class" confirmed="yes">messagecomponents.consumer.MyApplication</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.injector.MessageServiceInjector.getConsumer()</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.injector.email.EmailServiceInjector.getConsumer()</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.injector.sms.SMSServiceInjector.getConsumer()</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.test.MyMessageDITest.main(java.lang.String[])</inbound>
+            <feature confirmed="yes">
+                <name>messagecomponents.consumer.MessageConsumer.processMessages(java.lang.String, java.lang.String)</name>
+                <outbound type="class" confirmed="no">java.lang.String</outbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.test.MyMessageDITest.main(java.lang.String[])</inbound>
+            </feature>
+        </class>
+        <class confirmed="yes">
+            <name>messagecomponents.consumer.MyApplication</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <outbound type="class" confirmed="yes">messagecomponents.consumer.MessageConsumer</outbound>
+            <feature confirmed="yes">
+                <name>messagecomponents.consumer.MyApplication.MyApplication()</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.injector.email.EmailServiceInjector.getConsumer()</inbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>messagecomponents.consumer.MyApplication.MyApplication(messagecomponents.service.MessageService)</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+                <outbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.service</outbound>
+                <outbound type="class" confirmed="yes">messagecomponents.service.MessageService</outbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.injector.sms.SMSServiceInjector.getConsumer()</inbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>messagecomponents.consumer.MyApplication.processMessages(java.lang.String, java.lang.String)</name>
+                <outbound type="class" confirmed="no">java.lang.String</outbound>
+                <outbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.service</outbound>
+                <outbound type="class" confirmed="yes">messagecomponents.service.MessageService</outbound>
+                <outbound type="feature" confirmed="yes">messagecomponents.service.MessageService.sendMessage(java.lang.String, java.lang.String)</outbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>messagecomponents.consumer.MyApplication.service</name>
+                <outbound type="class" confirmed="yes">messagecomponents.service.MessageService</outbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.MyApplication(messagecomponents.service.MessageService)</inbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.processMessages(java.lang.String, java.lang.String)</inbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.setService(messagecomponents.service.MessageService)</inbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>messagecomponents.consumer.MyApplication.setService(messagecomponents.service.MessageService)</name>
+                <outbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.service</outbound>
+                <outbound type="class" confirmed="yes">messagecomponents.service.MessageService</outbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.injector.email.EmailServiceInjector.getConsumer()</inbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="yes">
+        <name>messagecomponents.injector</name>
+        <class confirmed="yes">
+            <name>messagecomponents.injector.MessageServiceInjector</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <inbound type="class" confirmed="yes">messagecomponents.injector.email.EmailServiceInjector</inbound>
+            <inbound type="class" confirmed="yes">messagecomponents.injector.sms.SMSServiceInjector</inbound>
+            <feature confirmed="yes">
+                <name>messagecomponents.injector.MessageServiceInjector.getConsumer()</name>
+                <outbound type="class" confirmed="yes">messagecomponents.consumer.MessageConsumer</outbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.test.MyMessageDITest.main(java.lang.String[])</inbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="yes">
+        <name>messagecomponents.injector.email</name>
+        <class confirmed="yes">
+            <name>messagecomponents.injector.email.EmailServiceInjector</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <outbound type="class" confirmed="yes">messagecomponents.injector.MessageServiceInjector</outbound>
+            <feature confirmed="yes">
+                <name>messagecomponents.injector.email.EmailServiceInjector.EmailServiceInjector()</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.test.MyMessageDITest.main(java.lang.String[])</inbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>messagecomponents.injector.email.EmailServiceInjector.getConsumer()</name>
+                <outbound type="class" confirmed="yes">messagecomponents.consumer.MessageConsumer</outbound>
+                <outbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.MyApplication()</outbound>
+                <outbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.setService(messagecomponents.service.MessageService)</outbound>
+                <outbound type="class" confirmed="yes">messagecomponents.service.MessageService</outbound>
+                <outbound type="feature" confirmed="yes">messagecomponents.service.email.EmailServiceImpl.EmailServiceImpl()</outbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="yes">
+        <name>messagecomponents.injector.sms</name>
+        <class confirmed="yes">
+            <name>messagecomponents.injector.sms.SMSServiceInjector</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <outbound type="class" confirmed="yes">messagecomponents.injector.MessageServiceInjector</outbound>
+            <feature confirmed="yes">
+                <name>messagecomponents.injector.sms.SMSServiceInjector.SMSServiceInjector()</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.test.MyMessageDITest.main(java.lang.String[])</inbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>messagecomponents.injector.sms.SMSServiceInjector.getConsumer()</name>
+                <outbound type="class" confirmed="yes">messagecomponents.consumer.MessageConsumer</outbound>
+                <outbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.MyApplication(messagecomponents.service.MessageService)</outbound>
+                <outbound type="class" confirmed="yes">messagecomponents.service.MessageService</outbound>
+                <outbound type="feature" confirmed="yes">messagecomponents.service.sms.SMSServiceImpl.SMSServiceImpl()</outbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="yes">
+        <name>messagecomponents.service</name>
+        <class confirmed="yes">
+            <name>messagecomponents.service.MessageService</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.MyApplication(messagecomponents.service.MessageService)</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.processMessages(java.lang.String, java.lang.String)</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.service</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.setService(messagecomponents.service.MessageService)</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.injector.email.EmailServiceInjector.getConsumer()</inbound>
+            <inbound type="feature" confirmed="yes">messagecomponents.injector.sms.SMSServiceInjector.getConsumer()</inbound>
+            <inbound type="class" confirmed="yes">messagecomponents.service.email.EmailServiceImpl</inbound>
+            <inbound type="class" confirmed="yes">messagecomponents.service.sms.SMSServiceImpl</inbound>
+            <feature confirmed="yes">
+                <name>messagecomponents.service.MessageService.sendMessage(java.lang.String, java.lang.String)</name>
+                <outbound type="class" confirmed="no">java.lang.String</outbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.consumer.MyApplication.processMessages(java.lang.String, java.lang.String)</inbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="yes">
+        <name>messagecomponents.service.email</name>
+        <class confirmed="yes">
+            <name>messagecomponents.service.email.EmailServiceImpl</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <outbound type="class" confirmed="yes">messagecomponents.service.MessageService</outbound>
+            <feature confirmed="yes">
+                <name>messagecomponents.service.email.EmailServiceImpl.EmailServiceImpl()</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.injector.email.EmailServiceInjector.getConsumer()</inbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>messagecomponents.service.email.EmailServiceImpl.sendMessage(java.lang.String, java.lang.String)</name>
+                <outbound type="class" confirmed="no">java.io.PrintStream</outbound>
+                <outbound type="feature" confirmed="no">java.io.PrintStream.println(java.lang.String)</outbound>
+                <outbound type="class" confirmed="no">java.lang.String</outbound>
+                <outbound type="feature" confirmed="no">java.lang.System.out</outbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="yes">
+        <name>messagecomponents.service.sms</name>
+        <class confirmed="yes">
+            <name>messagecomponents.service.sms.SMSServiceImpl</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <outbound type="class" confirmed="yes">messagecomponents.service.MessageService</outbound>
+            <feature confirmed="yes">
+                <name>messagecomponents.service.sms.SMSServiceImpl.SMSServiceImpl()</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+                <inbound type="feature" confirmed="yes">messagecomponents.injector.sms.SMSServiceInjector.getConsumer()</inbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>messagecomponents.service.sms.SMSServiceImpl.sendMessage(java.lang.String, java.lang.String)</name>
+                <outbound type="class" confirmed="no">java.io.PrintStream</outbound>
+                <outbound type="feature" confirmed="no">java.io.PrintStream.println(java.lang.String)</outbound>
+                <outbound type="class" confirmed="no">java.lang.String</outbound>
+                <outbound type="feature" confirmed="no">java.lang.System.out</outbound>
+            </feature>
+        </class>
+    </package>
+    <package confirmed="yes">
+        <name>messagecomponents.test</name>
+        <class confirmed="yes">
+            <name>messagecomponents.test.MyMessageDITest</name>
+            <outbound type="class" confirmed="no">java.lang.Object</outbound>
+            <feature confirmed="yes">
+                <name>messagecomponents.test.MyMessageDITest.MyMessageDITest()</name>
+                <outbound type="feature" confirmed="no">java.lang.Object.Object()</outbound>
+            </feature>
+            <feature confirmed="yes">
+                <name>messagecomponents.test.MyMessageDITest.main(java.lang.String[])</name>
+                <outbound type="class" confirmed="no">java.lang.String</outbound>
+                <outbound type="class" confirmed="yes">messagecomponents.consumer.MessageConsumer</outbound>
+                <outbound type="feature" confirmed="yes">messagecomponents.consumer.MessageConsumer.processMessages(java.lang.String, java.lang.String)</outbound>
+                <outbound type="feature" confirmed="yes">messagecomponents.injector.MessageServiceInjector.getConsumer()</outbound>
+                <outbound type="feature" confirmed="yes">messagecomponents.injector.email.EmailServiceInjector.EmailServiceInjector()</outbound>
+                <outbound type="feature" confirmed="yes">messagecomponents.injector.sms.SMSServiceInjector.SMSServiceInjector()</outbound>
+            </feature>
+        </class>
+    </package>
+</dependencies>

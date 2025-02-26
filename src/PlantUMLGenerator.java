@@ -1,3 +1,4 @@
+import java.util.HashSet;
 import java.util.Set;
 
 public class PlantUMLGenerator {
@@ -13,6 +14,13 @@ public class PlantUMLGenerator {
 
         umlBuilder.append("@startuml\n");
 
+        // Collect all required interfaces across all components
+        Set<String> allRequiredInterfaces = new HashSet<>();
+        for (Component component : components) {
+            allRequiredInterfaces.addAll(component.getRequiredInterfaces());
+        }
+
+
         //define each component with its classes and interfaces
         for (Component component : components) {
             //default name in case of default package
@@ -27,7 +35,9 @@ public class PlantUMLGenerator {
             }
 
             for (String providedInterface : component.getProvidedInterfaces()) {
-                umlBuilder.append("  interface ").append(providedInterface).append("\n");
+                if (!allRequiredInterfaces.contains(providedInterface)) {
+                    umlBuilder.append("  interface ").append(providedInterface).append("\n");
+                }
             }
 
             umlBuilder.append("}\n\n");
