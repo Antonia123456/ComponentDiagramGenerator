@@ -85,6 +85,13 @@ public class DependencyParser {
                                 Class<?> superclass = clazz.getSuperclass();
                                 if (superclass != null && !superclass.isInterface() && !Modifier.isAbstract(superclass.getModifiers()) && !superclass.getName().equals("java.lang.Object"))
                                     explicitImplementation.add(className);
+                                else if (superclass != null && Modifier.isAbstract(superclass.getModifiers()) && !superclass.getName().equals("java.lang.Object")) {
+                                    component.addClassImplementation(clazz.getName(),superclass.getName());
+                                }//????
+                                // Track implemented interfaces
+                                for (Class<?> interfaceClass : clazz.getInterfaces()) {
+                                    component.addClassImplementation(clazz.getName(), interfaceClass.getName());
+                                }
                             }
 
                         } catch (ClassNotFoundException e) {

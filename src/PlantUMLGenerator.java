@@ -1,4 +1,5 @@
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class PlantUMLGenerator {
@@ -14,10 +15,19 @@ public class PlantUMLGenerator {
 
         umlBuilder.append("@startuml\n");
 
-        // Collect all required interfaces across all components
-        Set<String> allRequiredInterfaces = new HashSet<>();
+        //Track ALL interfaces that are USED (either required or implemented)
+        Set<String> allUsedInterfaces = new HashSet<>();
+
+        //Collect implemented interfaces
         for (Component component : components) {
-            allRequiredInterfaces.addAll(component.getRequiredInterfaces());
+            for (Map.Entry<String, Set<String>> entry : component.getClassImplementations().entrySet()) {
+                allUsedInterfaces.addAll(entry.getValue());
+            }
+        }
+
+        //Collect required interfaces
+        for (Component component : components) {
+            allUsedInterfaces.addAll(component.getRequiredInterfaces());
         }
 
 
@@ -35,7 +45,7 @@ public class PlantUMLGenerator {
             }
 
             for (String providedInterface : component.getProvidedInterfaces()) {
-                if (!allRequiredInterfaces.contains(providedInterface)) {
+                if (!allUsedInterfaces.contains(providedInterface)) {
                     umlBuilder.append("  interface ").append(providedInterface).append("\n");
                 }
             }
@@ -43,7 +53,24 @@ public class PlantUMLGenerator {
             umlBuilder.append("}\n\n");
         }
 
-        //add relationships between components
+        // Add implementation relationships -0)-
+        for (Component component : components) {
+            for (Map.Entry<String, Set<String>> entry : component.getClassImplementations().entrySet()) {
+                String className = entry.getKey();
+                for (String interfaceName : entry.getValue()) {
+                    //remove package prefix
+                    String simpleInterfaceName = interfaceName.substring(interfaceName.lastIndexOf('.') + 1);
+                    umlBuilder.append(className)
+                            .append(" -0)- ")
+                            .append(interfaceName)
+                            .append(" : \"\"").append(simpleInterfaceName).append("\"\"\n");
+                    // Remove these from required interfaces to avoid duplicates
+                    component.getRequiredInterfaces().remove(interfaceName);
+                }
+            }
+        }
+
+        //add relationships between components -(0-
         for (Component component : components) {
             String fromPackageName = component.getName().isEmpty() ? "default" : component.getName();
 

@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,5 +52,16 @@ public class Component {
 
     public void setExplicitImplementation(Set<String> explicitImplementation) {
         this.explicitImplementation = explicitImplementation;
+    }
+
+    //Track class-to-interface implementations
+    private Map<String, Set<String>> classImplementations = new HashMap<>();
+
+    public void addClassImplementation(String className, String interfaceName) {
+        classImplementations.computeIfAbsent(className, k -> new HashSet<>()).add(interfaceName);
+    }
+
+    public Map<String, Set<String>> getClassImplementations() {
+        return classImplementations;
     }
 }
