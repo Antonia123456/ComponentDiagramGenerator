@@ -10,13 +10,8 @@ import java.util.jar.JarFile;
 
 public class DependencyParser {
 
-    private Set<Component> components = new HashSet<>();
-
-    private List<String> ignoreList = Arrays.asList(
-            "java.lang",
-            "java.io",
-            "java.util"
-    );
+    private Map<String, Component> componentMap = new HashMap<>();
+    private List<String> ignoreList = Arrays.asList("java.lang", "java.io", "java.util");
 
     public void parseXML(File xmlFile, String jarFileName) throws Exception {
 
@@ -26,7 +21,7 @@ public class DependencyParser {
         document.getDocumentElement().normalize();
         NodeList packageList = document.getElementsByTagName("package");
 
-        // Load classes from the JAR file
+        // Load classes from JAR
         JarFile jarFile = new JarFile(new File(jarFileName));
         URLClassLoader loader = new URLClassLoader(new URL[]{new File(jarFileName).toURI().toURL()});
 
@@ -35,36 +30,32 @@ public class DependencyParser {
                 try {
                     // Convert to fully qualified class name format used in Java + remove the ".class" extension to get actual class name
                     String className = entry.getName().replace('/', '.').replace(".class", "");
-                    Class<?> clazz = loader.loadClass(className);
-
+                    loader.loadClass(className);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
             }
         });
 
-        // Process each package node
+        // Process each package
         for (int i = 0; i < packageList.getLength(); i++) {
             Node packageNode = packageList.item(i);
-
             if (packageNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element packageElement = (Element) packageNode;
                 String confirmedAttribute = packageElement.getAttribute("confirmed");
-
-                if (!"yes".equals(confirmedAttribute))
-                    continue;
+                if (!"yes".equals(confirmedAttribute)) continue;
 
                 String packageName = packageElement.getElementsByTagName("name").item(0).getTextContent();
+                Component component = componentMap.computeIfAbsent(packageName, Component::new);
 
-                // Create a new component for the package
-                Component component = new Component();
-                component.setName(packageName);
-                Set<String> composedParts = new HashSet<>();
-                Set<String> providedInterfaces = new HashSet<>();
-                Set<String> requiredInterfaces = new HashSet<>();
-                Set<String> explicitImplementation = new HashSet<>();
+                // Handle package hierarchy
+                String parentPackage = getParentPackage(packageName);
+                if (parentPackage != null) {
+                    Component parentComponent = componentMap.computeIfAbsent(parentPackage, Component::new);
+                    parentComponent.addSubPackage(packageName, component);
+                }
 
-                // Process each class from the package
+                // Process classes in package
                 NodeList classList = packageElement.getElementsByTagName("class");
                 for (int j = 0; j < classList.getLength(); j++) {
                     Node classNode = classList.item(j);
@@ -74,20 +65,25 @@ public class DependencyParser {
 
                         try {
                             Class<?> clazz = loader.loadClass(className);
-                            composedParts.add(className);
+                            component.getComposedParts().add(className);
 
                             if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
-                                providedInterfaces.add(clazz.getName());
+                                component.getProvidedInterfaces().add(clazz.getName());
                             }
 
                             // Check if a class explicitly extends a concrete class
                             if (!clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers())) {
                                 Class<?> superclass = clazz.getSuperclass();
-                                if (superclass != null && !superclass.isInterface() && !Modifier.isAbstract(superclass.getModifiers()) && !superclass.getName().equals("java.lang.Object"))
-                                    explicitImplementation.add(className);
-                                else if (superclass != null && Modifier.isAbstract(superclass.getModifiers()) && !superclass.getName().equals("java.lang.Object")) {
-                                    component.addClassImplementation(clazz.getName(),superclass.getName());
-                                }//????
+
+                                if (superclass != null && !superclass.getName().equals("java.lang.Object")) {
+                                    if (!superclass.isInterface() && !Modifier.isAbstract(superclass.getModifiers())) {
+                                        component.getExplicitImplementation().add(className);
+                                    } else if (Modifier.isAbstract(superclass.getModifiers())) {
+                                        // If it extends an abstract class, register it
+                                        component.addClassImplementation(clazz.getName(), superclass.getName());
+                                    }
+                                }//???
+
                                 // Track implemented interfaces
                                 for (Class<?> interfaceClass : clazz.getInterfaces()) {
                                     component.addClassImplementation(clazz.getName(), interfaceClass.getName());
@@ -96,10 +92,9 @@ public class DependencyParser {
 
                         } catch (ClassNotFoundException e) {
                             System.err.println("Class not found: " + className);
-                            e.printStackTrace();
                         }
 
-                        // Process outbound dependencies of type "class"
+                        // Process dependencies
                         NodeList outboundNodes = classElement.getElementsByTagName("outbound");
                         for (int k = 0; k < outboundNodes.getLength(); k++) {
                             Node outboundNode = outboundNodes.item(k);
@@ -111,21 +106,14 @@ public class DependencyParser {
                                 if (outboundType.equals("class")) {
                                     try {
                                         Class<?> outboundClass = loader.loadClass(outboundName);
+                                        boolean shouldIgnore = ignoreList.stream().anyMatch(ignore -> outboundClass.getName().startsWith(ignore));
 
-                                        if (outboundClass.isInterface() || Modifier.isAbstract(outboundClass.getModifiers())) {
-                                            // Ignore classes from ignoreList
-                                            boolean shouldIgnore = ignoreList.stream()
-                                                    .anyMatch(ignore -> outboundClass.getName().startsWith(ignore));
-                                            if (!shouldIgnore) {
-                                                requiredInterfaces.add(outboundName);
+                                        if (!shouldIgnore) {
+                                            if (outboundClass.isInterface() || Modifier.isAbstract(outboundClass.getModifiers())) {
+                                                component.getRequiredInterfaces().add(outboundName);
+                                            } else {
+                                                component.getExplicitImplementation().add(outboundName);
                                             }
-                                        } else {
-                                            boolean shouldIgnore = ignoreList.stream()
-                                                    .anyMatch(ignore -> outboundClass.getName().startsWith(ignore));
-                                            if (!shouldIgnore) {
-                                                explicitImplementation.add(outboundName);
-                                            }
-
                                         }
 
                                     } catch (ClassNotFoundException e) {
@@ -136,46 +124,41 @@ public class DependencyParser {
                         }
                     }
                 }
-
-                //requiredInterfaces.removeAll(providedInterfaces);
-
-                // Setting component attributes
-                component.setComposedParts(composedParts);
-                component.setProvidedInterfaces(providedInterfaces);
-                component.setRequiredInterfaces(requiredInterfaces);
-                component.setExplicitImplementation(explicitImplementation);
-
-                components.add(component);
             }
         }
     }
 
+    private String getParentPackage(String packageName) {
+        int lastDotIndex = packageName.lastIndexOf('.');
+        return (lastDotIndex == -1) ? null : packageName.substring(0, lastDotIndex);
+    }
+
+    public Set<Component> getComponents() {
+        return new HashSet<>(componentMap.values());
+    }
+
     public void printComponents() {
-        for (Component component : components) {
+        for (Component component : componentMap.values()) {
             System.out.println("Component: " + component.getName());
             System.out.println("Composed Parts: " + component.getComposedParts());
             System.out.println("Provided Interfaces: " + component.getProvidedInterfaces());
             System.out.println("Required Interfaces: " + component.getRequiredInterfaces());
             System.out.println("Explicit Implementations: " + component.getExplicitImplementation());
+            System.out.println("Sub-Packages: " + component.getSubPackages().keySet());
             System.out.println();
         }
     }
 
     public boolean hasExplicitImplementations() {
-        for (Component component : components) {
-            if (!component.getExplicitImplementation().isEmpty()) {
-                return true;
-            }
-        }
-        return false;
+        return componentMap.values().stream().anyMatch(c -> !c.getExplicitImplementation().isEmpty());
     }
 
     public void generateBadDesignReport() {
         System.out.println("This is a bad design. Explicit dependencies detected on concrete classes.");
-        for (Component component : components) {
+        for (Component component : componentMap.values()) {
             if (!component.getExplicitImplementation().isEmpty()) {
                 System.out.println("Component " + component.getName() +
-                        " has explicit dependencies for the following classes: " +
+                        " has explicit dependencies on: " +
                         component.getExplicitImplementation());
             }
         }
@@ -183,16 +166,8 @@ public class DependencyParser {
 
     public static void main(String[] args) {
         try {
-
             File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\LicentaJAR.xml");
             String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\Licenta.jar";
-
-
-            //File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\firstTryLicenceJAR2.xml");
-            //String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\FirstTryLicence2.jar";
-
-            // File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\complexExampleJAR.xml");
-            // String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\ComplexExample.jar";
 
             DependencyParser parser = new DependencyParser();
             parser.parseXML(xmlFile, jarFileName);
@@ -201,9 +176,9 @@ public class DependencyParser {
             if (parser.hasExplicitImplementations()) {
                 parser.generateBadDesignReport();
             } else {
-                PlantUMLGenerator umlGenerator = new PlantUMLGenerator(parser.components);
-                //String plantUMLText = umlGenerator.generatePlantUML(true);
+                PlantUMLGenerator umlGenerator = new PlantUMLGenerator(parser.getComponents());
                 String plantUMLText = umlGenerator.generatePlantUML(false);
+                //String plantUMLText = umlGenerator.generatePlantUML(true);
                 System.out.println("PlantUML Text:\n" + plantUMLText);
             }
 

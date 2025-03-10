@@ -1,24 +1,32 @@
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Component {
     private String name;
-    private Set<String> composedParts;
-    private Set<String> providedInterfaces;
-    private Set<String> requiredInterfaces;
-    private Set<String> explicitImplementation;
+    private Set<String> composedParts = new HashSet<>();
+    private Set<String> providedInterfaces = new HashSet<>();
+    private Set<String> requiredInterfaces = new HashSet<>();
+    private Set<String> explicitImplementation = new HashSet<>();
 
-    public Component() {
+    // New: Track sub-packages (sub-components)
+    private Map<String, Component> subPackages = new HashMap<>();
+
+    // Track class-to-interface implementations
+    private Map<String, Set<String>> classImplementations = new HashMap<>();
+
+    public Component(String name) {
+        this.name = name;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void addSubPackage(String subPackageName, Component subComponent) {
+        subPackages.put(subPackageName, subComponent);
+    }
+
+    public Map<String, Component> getSubPackages() {
+        return subPackages;
     }
 
     public Set<String> getComposedParts() {
@@ -45,7 +53,6 @@ public class Component {
         this.requiredInterfaces = requiredInterfaces;
     }
 
-
     public Set<String> getExplicitImplementation() {
         return explicitImplementation;
     }
@@ -53,9 +60,6 @@ public class Component {
     public void setExplicitImplementation(Set<String> explicitImplementation) {
         this.explicitImplementation = explicitImplementation;
     }
-
-    //Track class-to-interface implementations
-    private Map<String, Set<String>> classImplementations = new HashMap<>();
 
     public void addClassImplementation(String className, String interfaceName) {
         classImplementations.computeIfAbsent(className, k -> new HashSet<>()).add(interfaceName);
