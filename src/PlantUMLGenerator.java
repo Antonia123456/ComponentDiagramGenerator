@@ -10,7 +10,7 @@ public class PlantUMLGenerator {
         this.components = components;
     }
 
-    public String generatePlantUML() {
+    public String generatePlantUML(boolean isWhiteBoxMode) {
         StringBuilder umlBuilder = new StringBuilder();
 
         umlBuilder.append("@startuml\n");
@@ -36,21 +36,26 @@ public class PlantUMLGenerator {
             //default name in case of default package
             String packageName = component.getName().isEmpty() ? "default" : component.getName();
 
-            umlBuilder.append("component ").append(packageName).append(" {\n");
+            if (isWhiteBoxMode) {
+                umlBuilder.append("component ").append(packageName).append(" {\n");
 
-            for (String className : component.getComposedParts()) {
-                if (!component.getProvidedInterfaces().contains(className)) { //avoid double-adding interfaces
-                    umlBuilder.append("  class ").append(className).append("\n");
+                for (String className : component.getComposedParts()) {
+                    if (!component.getProvidedInterfaces().contains(className)) { //avoid double-adding interfaces
+                        umlBuilder.append("  class ").append(className).append("\n");
+                    }
                 }
-            }
 
-            for (String providedInterface : component.getProvidedInterfaces()) {
-                if (!allUsedInterfaces.contains(providedInterface)) {
-                    umlBuilder.append("  interface ").append(providedInterface).append("\n");
+                for (String providedInterface : component.getProvidedInterfaces()) {
+                    if (!allUsedInterfaces.contains(providedInterface)) {
+                        umlBuilder.append("  interface ").append(providedInterface).append("\n");
+                    }
                 }
-            }
 
-            umlBuilder.append("}\n\n");
+                umlBuilder.append("}\n\n");
+            } else {
+                //Black-box
+                umlBuilder.append("component ").append(packageName).append("\n");
+            }
         }
 
         // Add implementation relationships -0)-
@@ -58,17 +63,28 @@ public class PlantUMLGenerator {
             for (Map.Entry<String, Set<String>> entry : component.getClassImplementations().entrySet()) {
                 String className = entry.getKey();
                 for (String interfaceName : entry.getValue()) {
-                    //remove package prefix
+
                     String simpleInterfaceName = interfaceName.substring(interfaceName.lastIndexOf('.') + 1);
-                    umlBuilder.append(className)
-                            .append(" -0)- ")
-                            .append(interfaceName)
-                            .append(" : \"\"").append(simpleInterfaceName).append("\"\"\n");
+                    String packageName = interfaceName.substring(0, interfaceName.lastIndexOf('.'));
+
+                    if(isWhiteBoxMode) {
+                        umlBuilder.append(className)
+                                .append(" -0)- ")
+                                .append(packageName)
+                                .append(" : \"\"").append(simpleInterfaceName).append("\"\"\n");
+                    }
+                    else {
+                        umlBuilder.append(component.getName())
+                                .append(" -() ")
+                                .append(simpleInterfaceName).append("\n");
+                    }
+
                     // Remove these from required interfaces to avoid duplicates
                     component.getRequiredInterfaces().remove(interfaceName);
                 }
             }
         }
+
 
         //add relationships between components -(0-
         for (Component component : components) {

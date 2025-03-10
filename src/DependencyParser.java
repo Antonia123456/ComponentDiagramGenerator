@@ -15,7 +15,7 @@ public class DependencyParser {
     private List<String> ignoreList = Arrays.asList(
             "java.lang",
             "java.io",
-            "java.util" // example
+            "java.util"
     );
 
     public void parseXML(File xmlFile, String jarFileName) throws Exception {
@@ -202,7 +202,8 @@ public class DependencyParser {
                 parser.generateBadDesignReport();
             } else {
                 PlantUMLGenerator umlGenerator = new PlantUMLGenerator(parser.components);
-                String plantUMLText = umlGenerator.generatePlantUML();
+                //String plantUMLText = umlGenerator.generatePlantUML(true);
+                String plantUMLText = umlGenerator.generatePlantUML(false);
                 System.out.println("PlantUML Text:\n" + plantUMLText);
             }
 
