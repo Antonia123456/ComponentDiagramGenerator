@@ -158,7 +158,8 @@ public class DependencyParser {
     }
 
     private int getPackageDepth(String packageName) {
-        return packageName.isEmpty() ? 0 : packageName.split("\\.").length;
+        if (packageName.isEmpty()) return 0;
+        return packageName.contains(".") ? packageName.split("\\.").length : 1;
     }
 
     public Set<Component> getComponents() {

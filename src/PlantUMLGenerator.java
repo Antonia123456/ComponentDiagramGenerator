@@ -130,7 +130,7 @@ public class PlantUMLGenerator {
 
     // Compute the maximum depth among all components (including sub-packages).
     private int computeGlobalMaxDepth(Set<Component> comps) {
-        int max = 0;
+        int max = 1;
         for (Component comp : comps) {
             max = Math.max(max, getComponentMaxDepth(comp));
         }
