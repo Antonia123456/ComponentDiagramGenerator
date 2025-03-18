@@ -193,6 +193,21 @@ public class DependencyParser {
             }
         }
     }
+    private int getGlobalMaxDepth() {
+        int maxDepth = 0;
+        for (Component component : componentMap.values()) {
+            maxDepth = Math.max(maxDepth, getComponentMaxDepth(component));
+        }
+        return maxDepth;
+    }
+
+    private int getComponentMaxDepth(Component comp) {
+        int localMax = comp.getDepth();
+        for (Component sub : comp.getSubPackages().values()) {
+            localMax = Math.max(localMax, getComponentMaxDepth(sub));
+        }
+        return localMax;
+    }
 
     public static void main(String[] args) {
         try {
@@ -211,14 +226,25 @@ public class DependencyParser {
                 int modeChoice = scanner.nextInt();
 
                 PlantUMLGenerator.VisualizationMode mode;
-                int grayBoxLevel = 1;  // Default gray-box level
+                int grayBoxLevel = 1;  //default
 
                 if (modeChoice == 1) {
                     mode = PlantUMLGenerator.VisualizationMode.WHITE_BOX;
                 } else if (modeChoice == 2) {
                     mode = PlantUMLGenerator.VisualizationMode.GRAY_BOX;
-                    System.out.println("Enter gray-box level (e.g., 1 to hide deepest level, 2 to hide two deepest levels, etc.): ");
+                    int maxAllowedLevel = parser.getGlobalMaxDepth() - 1;
+                    System.out.println("Enter gray-box level (1-" + maxAllowedLevel + "): ");
                     grayBoxLevel = scanner.nextInt();
+
+                    if (grayBoxLevel > maxAllowedLevel) {
+                        System.out.println("Warning: The gray-box level you entered (" + grayBoxLevel + ") exceeds the maximum allowed depth (" + maxAllowedLevel + ").");
+                        System.out.println("The gray-box level has been adjusted to " + maxAllowedLevel + ".");
+                        grayBoxLevel = maxAllowedLevel; // Adjust to the maximum allowed level
+                    } else if (grayBoxLevel < 1) {
+                        System.out.println("Warning: The gray-box level must be at least 1.");
+                        System.out.println("The gray-box level has been adjusted to 1.");
+                        grayBoxLevel = 1; // Adjust to the minimum allowed level
+                    }
                 } else {
                     mode = PlantUMLGenerator.VisualizationMode.BLACK_BOX;
                 }

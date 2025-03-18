@@ -8,7 +8,7 @@ public class Component {
     private Set<String> requiredInterfaces = new HashSet<>();
     private Set<String> explicitImplementation = new HashSet<>();
 
-    // Track sub-packages (sub-components)
+    // Track sub-packages
     private Map<String, Component> subPackages = new HashMap<>();
 
     // Track class-to-interface implementations

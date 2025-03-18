@@ -33,8 +33,19 @@ public class PlantUMLGenerator {
         umlBuilder.append("@startuml\n");
 
         // Generate package structure
+        Set<String> processedPackages = new HashSet<>();
+        // First pass: process root packages
         for (Component component : components) {
-            generateComponentUML(component, umlBuilder);
+            if (isRootPackage(component)) {
+                generateComponentUML(component, umlBuilder, processedPackages, true);
+            }
+        }
+
+        // Second pass: process orphaned sub-packages (if any)
+        for (Component component : components) {
+            if (!processedPackages.contains(component.getName())) {
+                generateComponentUML(component, umlBuilder, processedPackages, false);
+            }
         }
 
         // Add implementation relationships ( -0)- )
@@ -94,38 +105,60 @@ public class PlantUMLGenerator {
     // Recursive method to generate package contents.
     // In WHITE_BOX mode, it shows classes (if not provided interfaces) and interfaces (if not used).
     // In GRAY_BOX mode, if details are not hidden, we mimic the same behavior.
-    private void generateComponentUML(Component component, StringBuilder umlBuilder) {
-        String packageName = component.getName().isEmpty() ? "default" : component.getName();
+    private void generateComponentUML(Component component, StringBuilder umlBuilder, Set<String> processedPackages, boolean isRootCall) {
+        String packageName = component.getName();
 
-        if (mode == VisualizationMode.BLACK_BOX) {
-            // Black-box: only show package boundaries.
-            umlBuilder.append("package ").append(packageName).append(" {\n}\n");
-            return;
-        }
+        // Skip already processed packages
+        if (processedPackages.contains(packageName)) return;
+        processedPackages.add(packageName);
 
-        // For GRAY_BOX mode, hide details if component's depth is greater than (globalMaxDepth - grayBoxLevel)
+        // Only root calls should check for parent existence
+        if (isRootCall && !isRootPackage(component)) return;
+
         boolean hideDetails = (mode == VisualizationMode.GRAY_BOX && component.getDepth() > (globalMaxDepth - grayBoxLevel));
 
         umlBuilder.append("package ").append(packageName).append(" {\n");
 
-        if (mode == VisualizationMode.WHITE_BOX || (mode == VisualizationMode.GRAY_BOX && !hideDetails)) {
-            // Use white-box logic to display classes and interfaces.
+        if (!hideDetails && mode != VisualizationMode.BLACK_BOX) {
             for (String className : component.getComposedParts()) {
                 if (!component.getProvidedInterfaces().contains(className)) {
                     umlBuilder.append("  class ").append(className).append("\n");
                 }
             }
-            for (String providedInterface : component.getProvidedInterfaces()) {
-                if (!allUsedInterfaces.contains(providedInterface)) {
-                    umlBuilder.append("  interface ").append(providedInterface).append("\n");
+            for (String iface : component.getProvidedInterfaces()) {
+                if (!allUsedInterfaces.contains(iface)) {
+                    umlBuilder.append("  interface ").append(iface).append("\n");
                 }
             }
         }
-        // Recurse for sub-packages.
-        for (Map.Entry<String, Component> entry : component.getSubPackages().entrySet()) {
-            generateComponentUML(entry.getValue(), umlBuilder);
+
+        // Recursively process sub-packages
+        for (Component subPackage : component.getSubPackages().values()) {
+            generateComponentUML(subPackage, umlBuilder, processedPackages, false);
         }
+
         umlBuilder.append("}\n");
+    }
+
+
+    private boolean isRootPackage(Component component) {
+        String parentName = getParentPackage(component.getName());
+        return parentName == null || !componentExists(parentName);
+    }
+
+    private boolean componentExists(String packageName) {
+        return components.stream().anyMatch(c -> c.getName().equals(packageName));
+    }
+
+    private String getParentPackage(String packageName) {
+        if (packageName == null || packageName.isEmpty()) {
+            return null; // No parent for empty or null package names
+        }
+        int lastDotIndex = packageName.lastIndexOf('.');
+        if (lastDotIndex == -1) {
+            return null; // No parent if there's no dot in the package name
+        }
+        return packageName.substring(0, lastDotIndex); // Return the parent package name
     }
 
     // Compute the maximum depth among all components (including sub-packages).
