@@ -14,7 +14,7 @@ public class DependencyParser {
     private List<String> ignoreList = Arrays.asList("java.lang", "java.io", "java.util");
 
     public void parseXML(File xmlFile, String jarFileName) throws Exception {
-        // First, parse packages from XML and compute depths.
+
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse(xmlFile);
@@ -26,13 +26,12 @@ public class DependencyParser {
             if (packageNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element packageElement = (Element) packageNode;
                 String packageName = packageElement.getElementsByTagName("name").item(0).getTextContent();
-                // Skip packages from Java libraries
+
                 if (ignoreList.stream().anyMatch(packageName::startsWith)) {
                     continue;
                 }
                 Component component = componentMap.computeIfAbsent(packageName, Component::new);
 
-                // Store depth (number of segments, e.g. messagecomponents.injector.email = 3)
                 int depth = getPackageDepth(packageName);
                 component.setDepth(depth);
 
@@ -227,6 +226,7 @@ public class DependencyParser {
 
                 PlantUMLGenerator.VisualizationMode mode;
                 int grayBoxLevel = 1;  //default
+                int globalMaxDepth = parser.getGlobalMaxDepth();
 
                 if (modeChoice == 1) {
                     mode = PlantUMLGenerator.VisualizationMode.WHITE_BOX;
@@ -249,7 +249,7 @@ public class DependencyParser {
                     mode = PlantUMLGenerator.VisualizationMode.BLACK_BOX;
                 }
 
-                PlantUMLGenerator umlGenerator = new PlantUMLGenerator(parser.getComponents(), mode, grayBoxLevel);
+                PlantUMLGenerator umlGenerator = new PlantUMLGenerator(parser.getComponents(), mode, grayBoxLevel, globalMaxDepth);
                 String plantUMLText = umlGenerator.generatePlantUML();
                 System.out.println("PlantUML Text:\n" + plantUMLText);
             }

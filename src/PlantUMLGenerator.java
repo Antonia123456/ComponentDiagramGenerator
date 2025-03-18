@@ -10,11 +10,11 @@ public class PlantUMLGenerator {
     private int globalMaxDepth;
     private Set<String> allUsedInterfaces = new HashSet<>();
 
-    public PlantUMLGenerator(Set<Component> components, VisualizationMode mode, int grayBoxLevel) {
+    public PlantUMLGenerator(Set<Component> components, VisualizationMode mode, int grayBoxLevel, int globalMaxDepth) {
         this.components = components;
         this.mode = mode;
         this.grayBoxLevel = grayBoxLevel;
-        this.globalMaxDepth = computeGlobalMaxDepth(components);
+        this.globalMaxDepth = globalMaxDepth;
         computeAllUsedInterfaces();
     }
 
@@ -159,22 +159,5 @@ public class PlantUMLGenerator {
             return null; // No parent if there's no dot in the package name
         }
         return packageName.substring(0, lastDotIndex); // Return the parent package name
-    }
-
-    // Compute the maximum depth among all components (including sub-packages).
-    private int computeGlobalMaxDepth(Set<Component> comps) {
-        int max = 1;
-        for (Component comp : comps) {
-            max = Math.max(max, getComponentMaxDepth(comp));
-        }
-        return max;
-    }
-
-    private int getComponentMaxDepth(Component comp) {
-        int localMax = comp.getDepth();
-        for (Component sub : comp.getSubPackages().values()) {
-            localMax = Math.max(localMax, getComponentMaxDepth(sub));
-        }
-        return localMax;
     }
 }
