@@ -34,19 +34,20 @@ public class PlantUMLGenerator {
 
         // Generate package structure
         Set<String> processedPackages = new HashSet<>();
-        // First pass: process root packages
+        // process root packages
         for (Component component : components) {
             if (isRootPackage(component)) {
                 generateComponentUML(component, umlBuilder, processedPackages, true);
             }
         }
 
-        // Second pass: process orphaned sub-packages (if any)
+        /*
+        // process sub-packages with no parent (if any left)
         for (Component component : components) {
             if (!processedPackages.contains(component.getName())) {
                 generateComponentUML(component, umlBuilder, processedPackages, false);
             }
-        }
+        }*/
 
         // Add implementation relationships ( -0)- )
         boolean isWhiteBoxMode = (mode == VisualizationMode.WHITE_BOX);
@@ -106,7 +107,7 @@ public class PlantUMLGenerator {
     // In WHITE_BOX mode, it shows classes (if not provided interfaces) and interfaces (if not used).
     // In GRAY_BOX mode, if details are not hidden, we mimic the same behavior.
     private void generateComponentUML(Component component, StringBuilder umlBuilder, Set<String> processedPackages, boolean isRootCall) {
-        String packageName = component.getName();
+        String packageName = component.getName().isEmpty() ? "default" : component.getName();
 
         // Skip already processed packages
         if (processedPackages.contains(packageName)) return;
@@ -143,7 +144,7 @@ public class PlantUMLGenerator {
 
     private boolean isRootPackage(Component component) {
         String parentName = getParentPackage(component.getName());
-        return parentName == null || !componentExists(parentName);
+        return parentName == null || !componentExists(parentName);// parent null or  parent isn't in the dataset
     }
 
     private boolean componentExists(String packageName) {
@@ -152,12 +153,12 @@ public class PlantUMLGenerator {
 
     private String getParentPackage(String packageName) {
         if (packageName == null || packageName.isEmpty()) {
-            return null; // No parent for empty or null package names
+            return null;
         }
         int lastDotIndex = packageName.lastIndexOf('.');
         if (lastDotIndex == -1) {
-            return null; // No parent if there's no dot in the package name
+            return null;
         }
-        return packageName.substring(0, lastDotIndex); // Return the parent package name
+        return packageName.substring(0, lastDotIndex);
     }
 }

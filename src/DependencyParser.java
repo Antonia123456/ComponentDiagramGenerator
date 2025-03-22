@@ -21,29 +21,6 @@ public class DependencyParser {
         document.getDocumentElement().normalize();
         NodeList packageList = document.getElementsByTagName("package");
 
-        for (int i = 0; i < packageList.getLength(); i++) {
-            Node packageNode = packageList.item(i);
-            if (packageNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element packageElement = (Element) packageNode;
-                String packageName = packageElement.getElementsByTagName("name").item(0).getTextContent();
-
-                if (ignoreList.stream().anyMatch(packageName::startsWith)) {
-                    continue;
-                }
-                Component component = componentMap.computeIfAbsent(packageName, Component::new);
-
-                int depth = getPackageDepth(packageName);
-                component.setDepth(depth);
-
-                // Handle parent-child relationship
-                String parentPackage = getParentPackage(packageName);
-                if (parentPackage != null) {
-                    Component parentComponent = componentMap.computeIfAbsent(parentPackage, Component::new);
-                    parentComponent.addSubPackage(packageName, component);
-                }
-            }
-        }
-
         // Load classes from the JAR
         JarFile jarFile = new JarFile(new File(jarFileName));
         URLClassLoader loader = new URLClassLoader(new URL[]{ new File(jarFileName).toURI().toURL() });
@@ -73,9 +50,13 @@ public class DependencyParser {
                 if (ignoreList.stream().anyMatch(packageName::startsWith)) {
                     continue;
                 }
+
                 Component component = componentMap.computeIfAbsent(packageName, Component::new);
 
-                // Handle package hierarchy
+                int depth = getPackageDepth(packageName);
+                component.setDepth(depth);
+
+                // Handle parent-child relationship
                 String parentPackage = getParentPackage(packageName);
                 if (parentPackage != null) {
                     Component parentComponent = componentMap.computeIfAbsent(parentPackage, Component::new);
@@ -212,6 +193,9 @@ public class DependencyParser {
         try {
             File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\LicentaJAR.xml");
             String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\Licenta.jar";
+
+            //File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\firstTryLicenceJAR.xml");
+            //String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\FirstTryLicence.jar";
 
             DependencyParser parser = new DependencyParser();
             parser.parseXML(xmlFile, jarFileName);
