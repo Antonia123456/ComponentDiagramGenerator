@@ -59,7 +59,12 @@ public class DependencyParser {
                 // Handle parent-child relationship
                 String parentPackage = getParentPackage(packageName);
                 if (parentPackage != null) {
-                    Component parentComponent = componentMap.computeIfAbsent(parentPackage, Component::new);
+                    Component parentComponent = componentMap.computeIfAbsent(parentPackage,
+                            parent -> {
+                        Component newParent = new Component(parent);
+                        newParent.setDepth(getPackageDepth(parent));
+                        return newParent;
+                    });
                     parentComponent.addSubPackage(packageName, component);
                 }
 
