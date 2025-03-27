@@ -1,0 +1,32 @@
+@startuml
+package messagecomponents {
+package messagecomponents.injector {
+package messagecomponents.injector.email {
+}
+package messagecomponents.injector.sms {
+}
+}
+package messagecomponents.consumer {
+}
+package messagecomponents.test {
+}
+package messagecomponents.service {
+package messagecomponents.service.email {
+}
+package messagecomponents.service.sms {
+}
+}
+}
+messagecomponents.consumer -() MessageConsumer
+messagecomponents.service.sms -() MessageService
+messagecomponents.service.email -() MessageService
+messagecomponents.injector.email -() MessageServiceInjector
+messagecomponents.injector.sms -() MessageServiceInjector
+messagecomponents.test -(0- messagecomponents.consumer : "MessageConsumer"
+messagecomponents.consumer -(0- messagecomponents.service : "MessageService"
+messagecomponents.injector.email -(0- messagecomponents.consumer : "MessageConsumer"
+messagecomponents.injector.email -(0- messagecomponents.service : "MessageService"
+messagecomponents.injector -(0- messagecomponents.consumer : "MessageConsumer"
+messagecomponents.injector.sms -(0- messagecomponents.consumer : "MessageConsumer"
+messagecomponents.injector.sms -(0- messagecomponents.service : "MessageService"
+@enduml

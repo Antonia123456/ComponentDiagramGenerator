@@ -7,6 +7,10 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.lang.reflect.*;
 import java.util.jar.JarFile;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class DependencyParser {
 
@@ -240,11 +244,51 @@ public class DependencyParser {
 
                 PlantUMLGenerator umlGenerator = new PlantUMLGenerator(parser.getComponents(), mode, grayBoxLevel, globalMaxDepth);
                 String plantUMLText = umlGenerator.generatePlantUML();
-                System.out.println("PlantUML Text:\n" + plantUMLText);
+
+                String outputFileName = "component_diagram";
+                saveAndGenerateDiagram(plantUMLText, outputFileName);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+
+    private static void saveAndGenerateDiagram(String plantUMLText, String baseFileName) throws IOException {
+        Path outputPath = Paths.get("D:\\Licenta\\ComponentDiagramLicense\\src");
+
+        // Create the file
+        File pumlFile = new File(outputPath.resolve(baseFileName + ".puml").toString());
+        try (FileWriter writer = new FileWriter(pumlFile)) {
+            writer.write(plantUMLText);
+        }
+        System.out.println("PlantUML file saved to: " + pumlFile.getAbsolutePath());
+
+        generateDiagram(pumlFile);
+    }
+
+
+    private static void generateDiagram(File pumlFile) throws IOException {
+        String plantUmlPath = "D:\\Licenta\\ComponentDiagramLicense\\src\\plantuml.jar";
+
+        // Command to generate the diagram
+        String command = String.format("java -jar \"%s\" \"%s\"",
+                plantUmlPath,
+                pumlFile.getAbsolutePath());
+
+        // Run the command
+        Process process = Runtime.getRuntime().exec(command);
+        try {
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                System.out.println("Diagram generated successfully!");
+            } else {
+                System.err.println("Error generating diagram. Exit code: " + exitCode);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Diagram generation interrupted");
         }
     }
 }
