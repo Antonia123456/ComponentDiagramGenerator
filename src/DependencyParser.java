@@ -1,16 +1,16 @@
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
+import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.lang.reflect.*;
 import java.util.jar.JarFile;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 public class DependencyParser {
 
@@ -200,11 +200,20 @@ public class DependencyParser {
 
     public static void main(String[] args) {
         try {
-            File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\LicentaJAR.xml");
+            //File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\LicentaJAR.xml");
             String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\Licenta.jar";
 
-            //File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\firstTryLicenceJAR.xml");
-            //String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\FirstTryLicence.jar";
+            if (!new File(jarFileName).exists()) {
+                throw new FileNotFoundException("JAR file not found: " + jarFileName);
+            }
+
+            String xmlFileName = jarFileName.replace(".jar", "_dependencies.xml");
+            // Generate XML
+            System.out.println("Generating dependency analysis for: " + jarFileName);
+            runDependencyFinder(jarFileName, xmlFileName);
+            System.out.println("Successfully created: " + xmlFileName);
+
+            File xmlFile = new File(xmlFileName);
 
             DependencyParser parser = new DependencyParser();
             parser.parseXML(xmlFile, jarFileName);
@@ -289,6 +298,50 @@ public class DependencyParser {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             System.err.println("Diagram generation interrupted");
+        }
+    }
+
+    private static void runDependencyFinder(String jarPath, String outputXmlPath) throws Exception {
+        // Path to DependencyFinder
+        String depFinderHome = "D:\\Licenta\\DependencyFinder";
+        String batFile = depFinderHome + "\\bin\\DependencyExtractor.bat";
+
+        ProcessBuilder pb = new ProcessBuilder(
+                batFile,
+                "-xml",
+                "-out", outputXmlPath,
+                jarPath
+        );
+
+        // Set working directory to DependencyFinder home
+        pb.directory(new File(depFinderHome));
+
+        System.out.println("Running DependencyFinder with command:");
+        System.out.println(String.join(" ", pb.command()));
+
+        // Start process and handle output
+        Process process = pb.start();
+        StringBuilder output = new StringBuilder();
+        StringBuilder error = new StringBuilder();
+
+        try (BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+             BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+
+            String line;
+            while ((line = outReader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+            while ((line = errReader.readLine()) != null) {
+                error.append(line).append("\n");
+            }
+        }
+
+        int exitCode = process.waitFor();
+        System.out.println("DependencyFinder output:\n" + output);
+
+        if (exitCode != 0) {
+            System.err.println("DependencyFinder errors:\n" + error);
+            throw new RuntimeException("DependencyFinder failed with exit code " + exitCode);
         }
     }
 }

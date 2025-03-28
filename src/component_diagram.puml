@@ -17,16 +17,16 @@ package messagecomponents.service.sms {
 }
 }
 }
-messagecomponents.consumer -() MessageConsumer
-messagecomponents.service.sms -() MessageService
 messagecomponents.service.email -() MessageService
 messagecomponents.injector.email -() MessageServiceInjector
+messagecomponents.consumer -() MessageConsumer
+messagecomponents.service.sms -() MessageService
 messagecomponents.injector.sms -() MessageServiceInjector
 messagecomponents.test -(0- messagecomponents.consumer : "MessageConsumer"
-messagecomponents.consumer -(0- messagecomponents.service : "MessageService"
+messagecomponents.injector -(0- messagecomponents.consumer : "MessageConsumer"
 messagecomponents.injector.email -(0- messagecomponents.consumer : "MessageConsumer"
 messagecomponents.injector.email -(0- messagecomponents.service : "MessageService"
-messagecomponents.injector -(0- messagecomponents.consumer : "MessageConsumer"
+messagecomponents.consumer -(0- messagecomponents.service : "MessageService"
 messagecomponents.injector.sms -(0- messagecomponents.consumer : "MessageConsumer"
 messagecomponents.injector.sms -(0- messagecomponents.service : "MessageService"
 @enduml
