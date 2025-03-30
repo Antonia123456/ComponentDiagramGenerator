@@ -23,16 +23,16 @@ package messagecomponents.service.sms {
 }
 }
 }
-messagecomponents.service.sms.SMSServiceImpl -0)- messagecomponents.service : "MessageService"
 messagecomponents.service.email.EmailServiceImpl -0)- messagecomponents.service : "MessageService"
-messagecomponents.injector.sms.SMSServiceInjector -0)- messagecomponents.injector : "MessageServiceInjector"
-messagecomponents.consumer.MyApplication -0)- messagecomponents.consumer : "MessageConsumer"
+messagecomponents.service.sms.SMSServiceImpl -0)- messagecomponents.service : "MessageService"
 messagecomponents.injector.email.EmailServiceInjector -0)- messagecomponents.injector : "MessageServiceInjector"
-messagecomponents.injector.sms -(0- messagecomponents.consumer : "MessageConsumer"
-messagecomponents.injector.sms -(0- messagecomponents.service : "MessageService"
-messagecomponents.consumer -(0- messagecomponents.service : "MessageService"
+messagecomponents.consumer.MyApplication -0)- messagecomponents.consumer : "MessageConsumer"
+messagecomponents.injector.sms.SMSServiceInjector -0)- messagecomponents.injector : "MessageServiceInjector"
 messagecomponents.test -(0- messagecomponents.consumer : "MessageConsumer"
 messagecomponents.injector -(0- messagecomponents.consumer : "MessageConsumer"
 messagecomponents.injector.email -(0- messagecomponents.consumer : "MessageConsumer"
 messagecomponents.injector.email -(0- messagecomponents.service : "MessageService"
+messagecomponents.consumer -(0- messagecomponents.service : "MessageService"
+messagecomponents.injector.sms -(0- messagecomponents.consumer : "MessageConsumer"
+messagecomponents.injector.sms -(0- messagecomponents.service : "MessageService"
 @enduml
