@@ -65,10 +65,10 @@ public class DependencyParser {
                 if (parentPackage != null) {
                     Component parentComponent = componentMap.computeIfAbsent(parentPackage,
                             parent -> {
-                        Component newParent = new Component(parent);
-                        newParent.setDepth(getPackageDepth(parent));
-                        return newParent;
-                    });
+                                Component newParent = new Component(parent);
+                                newParent.setDepth(getPackageDepth(parent));
+                                return newParent;
+                            });
                     parentComponent.addSubPackage(packageName, component);
                 }
 
@@ -182,7 +182,7 @@ public class DependencyParser {
             }
         }
     }
-    private int getGlobalMaxDepth() {
+    public int getGlobalMaxDepth() {
         int maxDepth = 0;
         for (Component component : componentMap.values()) {
             maxDepth = Math.max(maxDepth, getComponentMaxDepth(component));
@@ -264,17 +264,14 @@ public class DependencyParser {
     }
 
 
-    private static void saveAndGenerateDiagram(String plantUMLText, String baseFileName) throws IOException {
+    protected static String saveAndGenerateDiagram(String plantUMLText, String baseFileName) throws IOException {
         Path outputPath = Paths.get("D:\\Licenta\\ComponentDiagramLicense\\src");
-
-        // Create the file
         File pumlFile = new File(outputPath.resolve(baseFileName + ".puml").toString());
         try (FileWriter writer = new FileWriter(pumlFile)) {
             writer.write(plantUMLText);
         }
-        System.out.println("PlantUML file saved to: " + pumlFile.getAbsolutePath());
-
         generateDiagram(pumlFile);
+        return pumlFile.getAbsolutePath();
     }
 
 
@@ -301,7 +298,7 @@ public class DependencyParser {
         }
     }
 
-    private static void runDependencyFinder(String jarPath, String outputXmlPath) throws Exception {
+    protected static void runDependencyFinder(String jarPath, String outputXmlPath) throws Exception {
         // Path to DependencyFinder
         String depFinderHome = "D:\\Licenta\\DependencyFinder";
         String batFile = depFinderHome + "\\bin\\DependencyExtractor.bat";
