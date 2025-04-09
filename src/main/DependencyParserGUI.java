@@ -12,6 +12,7 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.*;
 import java.util.concurrent.ExecutorService;
@@ -25,8 +26,9 @@ public class DependencyParserGUI extends Application {
     private Spinner<Integer> grayBoxLevel;
     private DependencyParser parser;
     private File selectedJarFile;
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService executor;
     private int currentMaxDepth = 1;
+    private Stage primaryStage;
 
     public static void main(String[] args) {
         launch(args);
@@ -34,10 +36,20 @@ public class DependencyParserGUI extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
         parser = new DependencyParser();
+        executor = Executors.newSingleThreadExecutor();
 
         primaryStage.setTitle("Dependency Parser");
 
+        createUIComponents();
+        Scene scene = createMainScene();
+        primaryStage.setScene(scene);
+        primaryStage.setOnCloseRequest(this::handleWindowClose);
+        primaryStage.show();
+    }
+
+    private void createUIComponents() {
         btnLoadJar = new Button("Load JAR");
         btnAnalyze = new Button("Analyze");
         btnPrintStructure = new Button("Print Structure");
@@ -45,62 +57,107 @@ public class DependencyParserGUI extends Application {
 
         visualizationMode = new ComboBox<>();
         visualizationMode.getItems().addAll("White-Box", "Gray-Box", "Black-Box");
+        visualizationMode.getSelectionModel().selectFirst();
         visualizationMode.setDisable(true);
 
         grayBoxLevel = new Spinner<>(1, 1, 1);
+        grayBoxLevel.setEditable(true);
         grayBoxLevel.setDisable(true);
 
         outputArea = new TextArea();
         outputArea.setEditable(false);
+        outputArea.setStyle("-fx-font-family: monospace;");
         redirectSystemOut();
 
+        setControlsDisabled(false);
         btnAnalyze.setDisable(true);
         btnPrintStructure.setDisable(true);
         btnGenerateDiagram.setDisable(true);
 
-        btnLoadJar.setOnAction(e -> loadJarFile(primaryStage));
-        btnAnalyze.setOnAction(e -> analyzeInBackground());
-        btnPrintStructure.setOnAction(e -> printStructure());
-        btnGenerateDiagram.setOnAction(e -> generateDiagramInBackground());
+        setupEventHandlers();
+    }
 
-        visualizationMode.setOnAction(e -> {
-            boolean isGrayBox = "Gray-Box".equals(visualizationMode.getValue());
-            grayBoxLevel.setDisable(!isGrayBox);
-        });
-
+    private Scene createMainScene() {
         HBox fileControls = new HBox(10, btnLoadJar, btnAnalyze);
+        fileControls.setPadding(new Insets(5));
+
         HBox settingsControls = new HBox(10,
                 new Label("Visualization Mode:"), visualizationMode,
                 new Label("Gray Level:"), grayBoxLevel
         );
+        settingsControls.setPadding(new Insets(5));
+
         HBox actionsControls = new HBox(10, btnPrintStructure, btnGenerateDiagram);
+        actionsControls.setPadding(new Insets(5));
+
         VBox controlPanel = new VBox(10, fileControls, settingsControls, actionsControls);
         controlPanel.setPadding(new Insets(10));
 
-        VBox root = new VBox(10, controlPanel, new Separator(), new ScrollPane(outputArea));
+        ScrollPane outputScroll = new ScrollPane(outputArea);
+        outputScroll.setFitToWidth(true);
+        outputScroll.setFitToHeight(true);
+
+        VBox root = new VBox(10, controlPanel, new Separator(), outputScroll);
         root.setPadding(new Insets(10));
 
-        Scene scene = new Scene(root, 900, 600);
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        return new Scene(root, 900, 600);
+    }
+
+    private void setupEventHandlers() {
+        btnLoadJar.setOnAction(e -> loadJarFile());
+        btnAnalyze.setOnAction(e -> analyzeInBackground());
+        btnPrintStructure.setOnAction(e -> printStructure());
+        btnGenerateDiagram.setOnAction(e -> generateDiagramInBackground());
+
+        visualizationMode.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            grayBoxLevel.setDisable(!"Gray-Box".equals(newVal));
+        });
+    }
+
+    private void handleWindowClose(WindowEvent event) {
+        if (executor != null) {
+            executor.shutdownNow();
+        }
+        Platform.exit();
+        System.exit(0);
     }
 
     private void redirectSystemOut() {
         OutputStream out = new OutputStream() {
+            private StringBuilder buffer = new StringBuilder();
+
             @Override
-            public void write(int b) throws IOException {
-                Platform.runLater(() -> outputArea.appendText(String.valueOf((char) b)));
+            public void write(int b) {
+                buffer.append((char)b);
+                if (b == '\n') {
+                    flushBuffer();
+                }
+            }
+
+            @Override
+            public void write(byte[] b, int off, int len) {
+                buffer.append(new String(b, off, len));
+                if (buffer.indexOf("\n") >= 0) {
+                    flushBuffer();
+                }
+            }
+
+            private void flushBuffer() {
+                String content = buffer.toString();
+                buffer.setLength(0);
+                Platform.runLater(() -> outputArea.appendText(content));
             }
         };
+
         System.setOut(new PrintStream(out, true));
         System.setErr(new PrintStream(out, true));
     }
 
-    private void loadJarFile(Stage stage) {
+    private void loadJarFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select JAR File");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JAR Files", "*.jar"));
-        File file = fileChooser.showOpenDialog(stage);
+        File file = fileChooser.showOpenDialog(primaryStage);
 
         if (file != null) {
             selectedJarFile = file;
@@ -114,7 +171,7 @@ public class DependencyParserGUI extends Application {
             visualizationMode.setDisable(true);
             grayBoxLevel.setDisable(true);
 
-            grayBoxLevel.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 1, 1));
+            grayBoxLevel.getValueFactory().setValue(1);
         }
     }
 
@@ -139,21 +196,24 @@ public class DependencyParserGUI extends Application {
                             showBadDesignReport();
                         } else {
                             currentMaxDepth = parser.getGlobalMaxDepth();
-                            grayBoxLevel.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(
-                                    1, Math.max(1, currentMaxDepth - 1), 1));
+                            SpinnerValueFactory.IntegerSpinnerValueFactory valueFactory =
+                                    new SpinnerValueFactory.IntegerSpinnerValueFactory(
+                                            1, Math.max(1, currentMaxDepth - 1), 1);
+                            grayBoxLevel.setValueFactory(valueFactory);
 
                             btnPrintStructure.setDisable(false);
                             btnGenerateDiagram.setDisable(false);
                             visualizationMode.setDisable(false);
-                            if ("Gray-Box".equals(visualizationMode.getValue())) {
-                                grayBoxLevel.setDisable(false);
-                            }
+                            grayBoxLevel.setDisable(!"Gray-Box".equals(visualizationMode.getValue()));
                         }
                     });
                 } catch (Exception e) {
                     Platform.runLater(() -> System.err.println("Error: " + e.getMessage()));
+                    e.printStackTrace();
+                } finally {
+                    System.out.println("Parsing finished");
+                    Platform.runLater(() -> setControlsDisabled(false));
                 }
-                Platform.runLater(() -> setControlsDisabled(false));
                 return null;
             }
         };
@@ -192,12 +252,19 @@ public class DependencyParserGUI extends Application {
                     String plantUML = generator.generatePlantUML();
                     String pumlPath = parser.saveAndGenerateDiagram(plantUML, "component_diagram");
 
-                    String imagePath = pumlPath.replace(".puml", ".png");
-                    Platform.runLater(() -> showDiagramPopup(imagePath));
+                    Platform.runLater(() -> {
+                        String imagePath = pumlPath.replace(".puml", ".png");
+                        showDiagramPopup(imagePath);
+                        System.out.println("Diagram generated successfully!");
+                    });
                 } catch (Exception e) {
-                    Platform.runLater(() -> System.err.println("Diagram error: " + e.getMessage()));
+                    Platform.runLater(() -> {
+                        System.err.println("Diagram error: " + e.getMessage());
+                        e.printStackTrace();
+                    });
+                } finally {
+                    Platform.runLater(() -> setControlsDisabled(false));
                 }
-                Platform.runLater(() -> setControlsDisabled(false));
                 return null;
             }
         };
@@ -231,10 +298,15 @@ public class DependencyParserGUI extends Application {
     private void showBadDesignReport() {
         Stage dialog = new Stage();
         dialog.setTitle("Bad Design Report");
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(primaryStage);
 
         TextArea reportArea = new TextArea();
         reportArea.setEditable(false);
+        reportArea.setStyle("-fx-font-family: monospace;");
+        reportArea.setWrapText(true);
 
+        // Redirect output to capture the report
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         PrintStream oldOut = System.out;
@@ -246,8 +318,11 @@ public class DependencyParserGUI extends Application {
         System.setOut(oldOut);
         reportArea.setText(baos.toString());
 
-        dialog.setScene(new Scene(new ScrollPane(reportArea), 600, 400));
-        dialog.initModality(Modality.APPLICATION_MODAL);
+        ScrollPane scrollPane = new ScrollPane(reportArea);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+
+        dialog.setScene(new Scene(scrollPane, 800, 600));
         dialog.showAndWait();
     }
 
