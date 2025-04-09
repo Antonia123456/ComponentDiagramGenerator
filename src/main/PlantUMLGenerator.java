@@ -1,3 +1,5 @@
+package main;
+
 import java.util.*;
 
 public class PlantUMLGenerator {
@@ -43,7 +45,7 @@ public class PlantUMLGenerator {
 
         /*
         // process sub-packages with no parent (if any left)
-        for (Component component : components) {
+        for (main.Component component : components) {
             if (!processedPackages.contains(component.getName())) {
                 generateComponentUML(component, umlBuilder, processedPackages, false);
             }

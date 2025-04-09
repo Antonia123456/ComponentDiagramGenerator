@@ -1,3 +1,5 @@
+package main;
+
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -9,8 +11,6 @@ import java.lang.reflect.*;
 import java.util.jar.JarFile;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 
 public class DependencyParser {
 
@@ -157,7 +157,7 @@ public class DependencyParser {
 
     public void printComponents() {
         for (Component component : componentMap.values()) {
-            System.out.println("Component: " + component.getName());
+            System.out.println("main.Component: " + component.getName());
             System.out.println("Depth: " + component.getDepth());
             System.out.println("Composed Parts: " + component.getComposedParts());
             System.out.println("Provided Interfaces: " + component.getProvidedInterfaces());
@@ -176,7 +176,7 @@ public class DependencyParser {
         System.out.println("This is a bad design. Explicit dependencies detected on concrete classes.");
         for (Component component : componentMap.values()) {
             if (!component.getExplicitImplementation().isEmpty()) {
-                System.out.println("Component " + component.getName() +
+                System.out.println("main.Component " + component.getName() +
                         " has explicit dependencies on: " +
                         component.getExplicitImplementation());
             }
