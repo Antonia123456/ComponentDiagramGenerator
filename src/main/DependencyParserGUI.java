@@ -50,25 +50,30 @@ public class DependencyParserGUI extends Application {
     }
 
     private void createUIComponents() {
+        // Button initialization
         btnLoadJar = new Button("Load JAR");
         btnAnalyze = new Button("Analyze");
         btnPrintStructure = new Button("Print Structure");
         btnGenerateDiagram = new Button("Generate Diagram");
 
+        // Visualization mode dropdown
         visualizationMode = new ComboBox<>();
         visualizationMode.getItems().addAll("White-Box", "Gray-Box", "Black-Box");
         visualizationMode.getSelectionModel().selectFirst();
         visualizationMode.setDisable(true);
 
+        // Gray level spinner
         grayBoxLevel = new Spinner<>(1, 1, 1);
         grayBoxLevel.setEditable(true);
         grayBoxLevel.setDisable(true);
 
+        // Output area setup
         outputArea = new TextArea();
         outputArea.setEditable(false);
         outputArea.setStyle("-fx-font-family: monospace;");
         redirectSystemOut();
 
+        // Initial button states
         setControlsDisabled(false);
         btnAnalyze.setDisable(true);
         btnPrintStructure.setDisable(true);
@@ -93,6 +98,7 @@ public class DependencyParserGUI extends Application {
         VBox controlPanel = new VBox(10, fileControls, settingsControls, actionsControls);
         controlPanel.setPadding(new Insets(10));
 
+        // Output area with scroll
         ScrollPane outputScroll = new ScrollPane(outputArea);
         outputScroll.setFitToWidth(true);
         outputScroll.setFitToHeight(true);
@@ -252,10 +258,10 @@ public class DependencyParserGUI extends Application {
                     String plantUML = generator.generatePlantUML();
                     String pumlPath = parser.saveAndGenerateDiagram(plantUML, "component_diagram");
 
+                    // Show the generated diagram
                     Platform.runLater(() -> {
                         String imagePath = pumlPath.replace(".puml", ".png");
                         showDiagramPopup(imagePath);
-                        System.out.println("Diagram generated successfully!");
                     });
                 } catch (Exception e) {
                     Platform.runLater(() -> {
@@ -274,6 +280,7 @@ public class DependencyParserGUI extends Application {
 
     private void showDiagramPopup(String imagePath) {
         try {
+            // Load and display the generated diagram image
             FileInputStream fis = new FileInputStream(imagePath);
             Image img = new Image(fis);
 
