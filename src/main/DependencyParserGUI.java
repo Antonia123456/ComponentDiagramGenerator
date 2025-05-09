@@ -13,7 +13,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-
 import java.io.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -293,7 +292,7 @@ public class DependencyParserGUI extends Application {
             scrollPane.setPrefSize(1000, 800);
 
             Stage dialog = new Stage();
-            dialog.setTitle("main.Component Diagram");
+            dialog.setTitle("Component Diagram");
             dialog.initModality(Modality.NONE);
             dialog.setScene(new Scene(scrollPane));
             dialog.show();

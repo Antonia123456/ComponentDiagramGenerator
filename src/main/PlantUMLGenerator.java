@@ -120,7 +120,7 @@ public class PlantUMLGenerator {
 
         boolean hideDetails = (mode == VisualizationMode.GRAY_BOX && component.getDepth() > (globalMaxDepth - grayBoxLevel));
 
-        umlBuilder.append("package ").append(packageName).append(" {\n");
+        umlBuilder.append("component ").append(packageName).append(" {\n");
 
         if (!hideDetails && mode != VisualizationMode.BLACK_BOX) {
             for (String className : component.getComposedParts()) {

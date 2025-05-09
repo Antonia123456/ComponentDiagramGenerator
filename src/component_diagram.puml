@@ -1,38 +1,29 @@
 @startuml
-package messagecomponents {
-package messagecomponents.injector {
-package messagecomponents.injector.email {
-  class messagecomponents.injector.email.EmailServiceInjector
+component notification {
+  class notification.Main
+component notification.consumers {
+  class notification.consumers.ApplicationConsumer
 }
-package messagecomponents.injector.sms {
-  class messagecomponents.injector.sms.SMSServiceInjector
+component notification.injectors {
+component notification.injectors.impl {
 }
 }
-package messagecomponents.consumer {
-  class messagecomponents.consumer.MyApplication
-}
-package messagecomponents.test {
-  class messagecomponents.test.MyMessageDITest
-}
-package messagecomponents.service {
-package messagecomponents.service.email {
-  class messagecomponents.service.email.EmailServiceImpl
-}
-package messagecomponents.service.sms {
-  class messagecomponents.service.sms.SMSServiceImpl
+component notification.services {
+component notification.services.impl {
 }
 }
 }
-messagecomponents.injector.email.EmailServiceInjector -0)- messagecomponents.injector : "MessageServiceInjector"
-messagecomponents.service.sms.SMSServiceImpl -0)- messagecomponents.service : "MessageService"
-messagecomponents.injector.sms.SMSServiceInjector -0)- messagecomponents.injector : "MessageServiceInjector"
-messagecomponents.consumer.MyApplication -0)- messagecomponents.consumer : "MessageConsumer"
-messagecomponents.service.email.EmailServiceImpl -0)- messagecomponents.service : "MessageService"
-messagecomponents.injector.email -(0- messagecomponents.consumer : "MessageConsumer"
-messagecomponents.injector.email -(0- messagecomponents.service : "MessageService"
-messagecomponents.injector.sms -(0- messagecomponents.consumer : "MessageConsumer"
-messagecomponents.injector.sms -(0- messagecomponents.service : "MessageService"
-messagecomponents.consumer -(0- messagecomponents.service : "MessageService"
-messagecomponents.injector -(0- messagecomponents.consumer : "MessageConsumer"
-messagecomponents.test -(0- messagecomponents.consumer : "MessageConsumer"
+notification.injectors.impl -() NotificationInjector
+notification.injectors.impl -() NotificationInjector
+notification.consumers -() NotificationConsumer
+notification.services.impl -() LoggerService
+notification.services.impl -() NotificationService
+notification.services.impl -() NotificationService
+notification.injectors -(0- notification.consumers : "NotificationConsumer"
+notification.injectors.impl -(0- notification.services : "NotificationService"
+notification.injectors.impl -(0- notification.consumers : "NotificationConsumer"
+notification.injectors.impl -(0- notification.services : "LoggerService"
+notification.consumers -(0- notification.services : "NotificationService"
+notification.consumers -(0- notification.services : "LoggerService"
+notification -(0- notification.consumers : "NotificationConsumer"
 @enduml
