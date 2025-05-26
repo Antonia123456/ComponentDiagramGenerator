@@ -1,29 +1,32 @@
 @startuml
-component notification {
-  class notification.Main
-component notification.consumers {
-  class notification.consumers.ApplicationConsumer
+component messagecomponents {
+component messagecomponents.injector {
+component messagecomponents.injector.email {
 }
-component notification.injectors {
-component notification.injectors.impl {
+component messagecomponents.injector.sms {
 }
 }
-component notification.services {
-component notification.services.impl {
+component messagecomponents.consumer {
+}
+component messagecomponents.test {
+}
+component messagecomponents.service {
+component messagecomponents.service.email {
+}
+component messagecomponents.service.sms {
 }
 }
 }
-notification.injectors.impl -() NotificationInjector
-notification.injectors.impl -() NotificationInjector
-notification.consumers -() NotificationConsumer
-notification.services.impl -() LoggerService
-notification.services.impl -() NotificationService
-notification.services.impl -() NotificationService
-notification.injectors -(0- notification.consumers : "NotificationConsumer"
-notification.injectors.impl -(0- notification.services : "NotificationService"
-notification.injectors.impl -(0- notification.consumers : "NotificationConsumer"
-notification.injectors.impl -(0- notification.services : "LoggerService"
-notification.consumers -(0- notification.services : "NotificationService"
-notification.consumers -(0- notification.services : "LoggerService"
-notification -(0- notification.consumers : "NotificationConsumer"
+messagecomponents.injector.email -() MessageServiceInjector
+messagecomponents.consumer -() MessageConsumer
+messagecomponents.service.email -() MessageService
+messagecomponents.service.sms -() MessageService
+messagecomponents.injector.sms -() MessageServiceInjector
+messagecomponents.injector.email -(0- messagecomponents.consumer : "MessageConsumer"
+messagecomponents.injector.email -(0- messagecomponents.service : "MessageService"
+messagecomponents.consumer -(0- messagecomponents.service : "MessageService"
+messagecomponents.injector -(0- messagecomponents.consumer : "MessageConsumer"
+messagecomponents.injector.sms -(0- messagecomponents.consumer : "MessageConsumer"
+messagecomponents.injector.sms -(0- messagecomponents.service : "MessageService"
+messagecomponents.test -(0- messagecomponents.consumer : "MessageConsumer"
 @enduml

@@ -200,7 +200,7 @@ public class DependencyParser {
 
     public static void main(String[] args) {
         try {
-            //File xmlFile = new File("D:\\Licenta\\ComponentDiagramLicense\\src\\LicentaJAR.xml");
+
             String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\Licenta.jar";
 
             if (!new File(jarFileName).exists()) {
@@ -231,9 +231,9 @@ public class DependencyParser {
                 int globalMaxDepth = parser.getGlobalMaxDepth();
 
                 if (modeChoice == 1) {
-                    mode = PlantUMLGenerator.VisualizationMode.WHITE_BOX;
+                    mode = UMLGenerator.VisualizationMode.WHITE_BOX;
                 } else if (modeChoice == 2) {
-                    mode = PlantUMLGenerator.VisualizationMode.GRAY_BOX;
+                    mode = UMLGenerator.VisualizationMode.GRAY_BOX;
                     int maxAllowedLevel = parser.getGlobalMaxDepth() - 1;
                     System.out.println("Enter gray-box level (1-" + maxAllowedLevel + "): ");
                     grayBoxLevel = scanner.nextInt();
@@ -248,14 +248,15 @@ public class DependencyParser {
                         grayBoxLevel = 1; // Adjust to the minimum allowed level
                     }
                 } else {
-                    mode = PlantUMLGenerator.VisualizationMode.BLACK_BOX;
+                    mode = UMLGenerator.VisualizationMode.BLACK_BOX;
                 }
 
-                PlantUMLGenerator umlGenerator = new PlantUMLGenerator(parser.getComponents(), mode, grayBoxLevel, globalMaxDepth);
-                String plantUMLText = umlGenerator.generatePlantUML();
+                //Create the generator using the factory
+                UMLGenerator umlGenerator = UMLGeneratorFactory.createGenerator(UMLGeneratorFactory.GeneratorType.PLANT_UML);
+                String umlText = umlGenerator.generateUML(parser.getComponents(), mode, grayBoxLevel, globalMaxDepth);
 
                 String outputFileName = "component_diagram";
-                saveAndGenerateDiagram(plantUMLText, outputFileName);
+                saveAndGenerateDiagram(umlText, outputFileName);
             }
 
         } catch (Exception e) {

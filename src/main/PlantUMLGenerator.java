@@ -2,26 +2,16 @@ package main;
 
 import java.util.*;
 
-public class PlantUMLGenerator {
+public class PlantUMLGenerator implements UMLGenerator {
 
-    public enum VisualizationMode { WHITE_BOX, GRAY_BOX, BLACK_BOX }
-
-    private Set<Component> components;
-    private VisualizationMode mode;
-    private int grayBoxLevel;
-    private int globalMaxDepth;
     private Set<String> allUsedInterfaces = new HashSet<>();
 
-    public PlantUMLGenerator(Set<Component> components, VisualizationMode mode, int grayBoxLevel, int globalMaxDepth) {
-        this.components = components;
-        this.mode = mode;
-        this.grayBoxLevel = grayBoxLevel;
-        this.globalMaxDepth = globalMaxDepth;
-        computeAllUsedInterfaces();
+    public PlantUMLGenerator() {
     }
 
     // Collect all interfaces that are used by implementations and required interfaces.
-    private void computeAllUsedInterfaces() {
+    private void computeAllUsedInterfaces(Set<Component> components) {
+        allUsedInterfaces.clear();
         for (Component component : components) {
             for (Set<String> impls : component.getClassImplementations().values()) {
                 allUsedInterfaces.addAll(impls);
@@ -30,7 +20,9 @@ public class PlantUMLGenerator {
         }
     }
 
-    public String generatePlantUML() {
+    @Override
+    public String generateUML(Set<Component> components, VisualizationMode mode, int grayBoxLevel, int globalMaxDepth) {
+        computeAllUsedInterfaces(components);
         StringBuilder umlBuilder = new StringBuilder();
         umlBuilder.append("@startuml\n");
 
@@ -38,18 +30,10 @@ public class PlantUMLGenerator {
         Set<String> processedPackages = new HashSet<>();
         // process root packages
         for (Component component : components) {
-            if (isRootPackage(component)) {
-                generateComponentUML(component, umlBuilder, processedPackages, true);
+            if (isRootPackage(component, components)) {
+                generateComponentUML(component, umlBuilder, processedPackages, components, mode, grayBoxLevel, globalMaxDepth, true);
             }
         }
-
-        /*
-        // process sub-packages with no parent (if any left)
-        for (main.Component component : components) {
-            if (!processedPackages.contains(component.getName())) {
-                generateComponentUML(component, umlBuilder, processedPackages, false);
-            }
-        }*/
 
         // Add implementation relationships ( -0)- )
         boolean isWhiteBoxMode = (mode == VisualizationMode.WHITE_BOX);
@@ -108,7 +92,7 @@ public class PlantUMLGenerator {
     // Recursive method to generate package contents.
     // In WHITE_BOX mode, it shows classes (if not provided interfaces) and interfaces (if not used).
     // In GRAY_BOX mode, if details are not hidden, we mimic the same behavior.
-    private void generateComponentUML(Component component, StringBuilder umlBuilder, Set<String> processedPackages, boolean isRootCall) {
+    private void generateComponentUML(Component component, StringBuilder umlBuilder, Set<String> processedPackages,Set<Component> components, VisualizationMode mode, int grayBoxLevel, int globalMaxDepth, boolean isRootCall) {
         String packageName = component.getName().isEmpty() ? "default" : component.getName();
 
         // Skip already processed packages
@@ -116,7 +100,7 @@ public class PlantUMLGenerator {
         processedPackages.add(packageName);
 
         // Only root calls should check for parent existence
-        if (isRootCall && !isRootPackage(component)) return;
+        if (isRootCall && !isRootPackage(component, components)) return;
 
         boolean hideDetails = (mode == VisualizationMode.GRAY_BOX && component.getDepth() > (globalMaxDepth - grayBoxLevel));
 
@@ -137,19 +121,19 @@ public class PlantUMLGenerator {
 
         // Recursively process sub-packages
         for (Component subPackage : component.getSubPackages().values()) {
-            generateComponentUML(subPackage, umlBuilder, processedPackages, false);
+            generateComponentUML(subPackage, umlBuilder, processedPackages, components, mode, grayBoxLevel, globalMaxDepth, false);
         }
 
         umlBuilder.append("}\n");
     }
 
 
-    private boolean isRootPackage(Component component) {
+    private boolean isRootPackage(Component component, Set<Component> components) {
         String parentName = getParentPackage(component.getName());
-        return parentName == null || !componentExists(parentName);// parent null or  parent isn't in the dataset
+        return parentName == null || !componentExists(parentName, components);
     }
 
-    private boolean componentExists(String packageName) {
+    private boolean componentExists(String packageName, Set<Component> components) {
         return components.stream().anyMatch(c -> c.getName().equals(packageName));
     }
 

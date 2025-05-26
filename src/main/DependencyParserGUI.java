@@ -241,21 +241,22 @@ public class DependencyParserGUI extends Application {
             @Override
             protected Void call() {
                 try {
-                    PlantUMLGenerator.VisualizationMode visMode = switch (visualizationMode.getValue()) {
-                        case "White-Box" -> PlantUMLGenerator.VisualizationMode.WHITE_BOX;
-                        case "Gray-Box" -> PlantUMLGenerator.VisualizationMode.GRAY_BOX;
-                        default -> PlantUMLGenerator.VisualizationMode.BLACK_BOX;
+                    UMLGenerator.VisualizationMode visMode = switch (visualizationMode.getValue()) {
+                        case "White-Box" -> UMLGenerator.VisualizationMode.WHITE_BOX;
+                        case "Gray-Box" -> UMLGenerator.VisualizationMode.GRAY_BOX;
+                        default -> UMLGenerator.VisualizationMode.BLACK_BOX;
                     };
 
-                    PlantUMLGenerator generator = new PlantUMLGenerator(
+                    // Create the generator using the factory
+                    UMLGenerator generator = UMLGeneratorFactory.createGenerator(UMLGeneratorFactory.GeneratorType.PLANT_UML);
+                    String umlText = generator.generateUML(
                             parser.getComponents(),
                             visMode,
                             grayBoxLevel.getValue(),
                             parser.getGlobalMaxDepth()
                     );
 
-                    String plantUML = generator.generatePlantUML();
-                    String pumlPath = parser.saveAndGenerateDiagram(plantUML, "component_diagram");
+                    String pumlPath = parser.saveAndGenerateDiagram(umlText, "component_diagram");
 
                     // Show the generated diagram
                     Platform.runLater(() -> {
