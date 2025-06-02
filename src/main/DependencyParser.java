@@ -310,35 +310,14 @@ public class DependencyParser {
                 "-out", outputXmlPath,
                 jarPath
         );
-
         // Set working directory to DependencyFinder home
         pb.directory(new File(depFinderHome));
 
-        System.out.println("Running DependencyFinder with command:");
-        System.out.println(String.join(" ", pb.command()));
-
-        // Start process and handle output
+        // Start process
         Process process = pb.start();
-        StringBuilder output = new StringBuilder();
-        StringBuilder error = new StringBuilder();
-
-        try (BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-             BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-
-            String line;
-            while ((line = outReader.readLine()) != null) {
-                output.append(line).append("\n");
-            }
-            while ((line = errReader.readLine()) != null) {
-                error.append(line).append("\n");
-            }
-        }
 
         int exitCode = process.waitFor();
-        System.out.println("DependencyFinder output:\n" + output);
-
         if (exitCode != 0) {
-            System.err.println("DependencyFinder errors:\n" + error);
             throw new RuntimeException("DependencyFinder failed with exit code " + exitCode);
         }
     }
