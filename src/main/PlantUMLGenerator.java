@@ -44,7 +44,7 @@ public class PlantUMLGenerator implements UMLGenerator {
                     String simpleInterfaceName = interfaceName.substring(interfaceName.lastIndexOf('.') + 1);
                     String packageName = interfaceName.contains(".")
                             ? interfaceName.substring(0, interfaceName.lastIndexOf('.'))
-                            : "";
+                            : "default";
 
                     if (isWhiteBoxMode) {
                         umlBuilder.append(className)
