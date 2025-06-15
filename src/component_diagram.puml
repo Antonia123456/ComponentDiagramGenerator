@@ -2,37 +2,31 @@
 component messagecomponents {
 component messagecomponents.injector {
 component messagecomponents.injector.email {
-  class messagecomponents.injector.email.EmailServiceInjector
 }
 component messagecomponents.injector.sms {
-  class messagecomponents.injector.sms.SMSServiceInjector
 }
 }
 component messagecomponents.consumer {
-  class messagecomponents.consumer.MyApplication
 }
 component messagecomponents.test {
-  class messagecomponents.test.MyMessageDITest
 }
 component messagecomponents.service {
 component messagecomponents.service.email {
-  class messagecomponents.service.email.EmailServiceImpl
 }
 component messagecomponents.service.sms {
-  class messagecomponents.service.sms.SMSServiceImpl
 }
 }
 }
-messagecomponents.consumer.MyApplication -0)- messagecomponents.consumer : "MessageConsumer"
-messagecomponents.service.email.EmailServiceImpl -0)- messagecomponents.service : "MessageService"
-messagecomponents.injector.email.EmailServiceInjector -0)- messagecomponents.injector : "MessageServiceInjector"
-messagecomponents.service.sms.SMSServiceImpl -0)- messagecomponents.service : "MessageService"
-messagecomponents.injector.sms.SMSServiceInjector -0)- messagecomponents.injector : "MessageServiceInjector"
+messagecomponents.consumer -() MessageConsumer
+messagecomponents.injector.email -() MessageServiceInjector
+messagecomponents.service.email -() MessageService
+messagecomponents.service.sms -() MessageService
+messagecomponents.injector.sms -() MessageServiceInjector
 messagecomponents.consumer -(0- messagecomponents.service : "MessageService"
 messagecomponents.injector.email -(0- messagecomponents.consumer : "MessageConsumer"
 messagecomponents.injector.email -(0- messagecomponents.service : "MessageService"
+messagecomponents.injector -(0- messagecomponents.consumer : "MessageConsumer"
+messagecomponents.test -(0- messagecomponents.consumer : "MessageConsumer"
 messagecomponents.injector.sms -(0- messagecomponents.consumer : "MessageConsumer"
 messagecomponents.injector.sms -(0- messagecomponents.service : "MessageService"
-messagecomponents.test -(0- messagecomponents.consumer : "MessageConsumer"
-messagecomponents.injector -(0- messagecomponents.consumer : "MessageConsumer"
 @enduml

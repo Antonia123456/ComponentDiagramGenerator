@@ -120,7 +120,7 @@ public class DependencyParser {
 
                                 if (outboundType.equals("class")) {
                                     try {
-                                        Class<?> outboundClass = loader.loadClass(outboundName);
+                                        Class<?> outboundClass = resolveClassName(outboundName, loader);
                                         boolean shouldIgnore = ignoreList.stream().anyMatch(ignore -> outboundClass.getName().startsWith(ignore));
                                         if (!shouldIgnore) {
                                             if (outboundClass.isInterface() || Modifier.isAbstract(outboundClass.getModifiers())) {
@@ -140,6 +140,36 @@ public class DependencyParser {
             }
         }
     }
+
+    private Class<?> resolveClassName(String className, ClassLoader loader) throws ClassNotFoundException {
+        // Case for arrays
+        if (className.endsWith("[]")) {
+            int d = 0;
+            while (className.endsWith("[]")) {
+                d++;
+                className = className.substring(0, className.length() - 2);
+            }
+            StringBuilder arrayPrefix = new StringBuilder();
+            for (int i = 0; i < d; i++) {
+                arrayPrefix.append("[");
+            }
+            String descriptor;
+            switch (className) {
+                case "byte": descriptor = "B"; break;
+                case "char": descriptor = "C"; break;
+                case "double": descriptor = "D"; break;
+                case "float": descriptor = "F"; break;
+                case "int": descriptor = "I"; break;
+                case "long": descriptor = "J"; break;
+                case "short": descriptor = "S"; break;
+                case "boolean": descriptor = "Z"; break;
+                default: descriptor = "L" + className + ";"; break;
+            }
+            return Class.forName(arrayPrefix + descriptor, false, loader);
+        }
+        return loader.loadClass(className);
+    }
+
 
     private String getParentPackage(String packageName) {
         int lastDotIndex = packageName.lastIndexOf('.');
