@@ -187,7 +187,7 @@ public class DependencyParser {
 
     public void printComponents() {
         for (Component component : componentMap.values()) {
-            System.out.println("main.Component: " + component.getName());
+            System.out.println("Component: " + component.getName());
             System.out.println("Depth: " + component.getDepth());
             System.out.println("Composed Parts: " + component.getComposedParts());
             System.out.println("Provided Interfaces: " + component.getProvidedInterfaces());
@@ -206,7 +206,7 @@ public class DependencyParser {
         System.out.println("This is a bad design. Explicit dependencies detected on concrete classes.");
         for (Component component : componentMap.values()) {
             if (!component.getExplicitImplementation().isEmpty()) {
-                System.out.println("main.Component " + component.getName() +
+                System.out.println("Component " + component.getName() +
                         " has explicit dependencies on: " +
                         component.getExplicitImplementation());
             }
