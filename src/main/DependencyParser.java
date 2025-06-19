@@ -119,25 +119,23 @@ public class DependencyParser {
                                 String outboundType = outboundElement.getAttribute("type");
 
                                 if (outboundType.equals("class")) {
-                                    String normalizedClassName = normalizeClassName(outboundName);
-
-                                    if (normalizedClassName == null) {
-                                        // primitive array type like I[] etc.
+                                    // primitive array type like I[] etc.
+                                    if (outboundName.matches("^[ZCBSIFDJ]((\\[\\])+)?$"))
                                         continue;
-                                    }
 
-                                    boolean shouldIgnore = ignoreList.stream().anyMatch(ignore -> normalizedClassName.startsWith(ignore));
+                                    boolean shouldIgnore = ignoreList.stream().anyMatch(ignore -> outboundName.startsWith(ignore));
                                     if (shouldIgnore)
                                         continue;
+
                                     try {
-                                        Class<?> outboundClass = loader.loadClass(normalizedClassName);
+                                        Class<?> outboundClass = loader.loadClass(outboundName);
                                         if (outboundClass.isInterface() || Modifier.isAbstract(outboundClass.getModifiers())) {
-                                            component.getRequiredInterfaces().add(normalizedClassName);
+                                            component.getRequiredInterfaces().add(outboundName);
                                         } else {
-                                            component.getExplicitImplementation().add(normalizedClassName);
+                                            component.getExplicitImplementation().add(outboundName);
                                         }
                                     } catch (ClassNotFoundException e) {
-                                        System.out.println("Class not found: " + normalizedClassName);
+                                        System.out.println("Class not found: " + outboundName);
                                     }
                                 }
                             }
@@ -147,20 +145,6 @@ public class DependencyParser {
             }
         }
     }
-
-    private String normalizeClassName(String rawName) {
-        //Ignore primitive arrays
-        if (rawName.matches("^[ZCBSIFDJ]((\\[\\])+)?$")) {
-            return null;
-        }
-
-        // Remove array suffixes like "[]", "[][]"
-        while (rawName.endsWith("[]")) {
-            rawName = rawName.substring(0, rawName.length() - 2);
-        }
-        return rawName;
-    }
-
 
     private String getParentPackage(String packageName) {
         int lastDotIndex = packageName.lastIndexOf('.');
