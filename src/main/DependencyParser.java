@@ -93,7 +93,7 @@ public class DependencyParser {
                                 Class<?> superclass = clazz.getSuperclass();
                                 if (superclass != null && !superclass.getName().equals("java.lang.Object")) {
                                     if (!superclass.isInterface() && !Modifier.isAbstract(superclass.getModifiers())) {
-                                        component.getExplicitImplementation().add(className);
+                                        component.getConcreteDependencies().add(className);
                                     } else if (Modifier.isAbstract(superclass.getModifiers())) {
                                         // If it extends an abstract class, register it
                                         component.addClassImplementation(clazz.getName(), superclass.getName());
@@ -132,7 +132,7 @@ public class DependencyParser {
                                         if (outboundClass.isInterface() || Modifier.isAbstract(outboundClass.getModifiers())) {
                                             component.getRequiredInterfaces().add(outboundName);
                                         } else {
-                                            component.getExplicitImplementation().add(outboundName);
+                                            component.getConcreteDependencies().add(outboundName);
                                         }
                                     } catch (ClassNotFoundException e) {
                                         System.out.println("Class not found: " + outboundName);
@@ -167,23 +167,23 @@ public class DependencyParser {
             System.out.println("Composed Parts: " + component.getComposedParts());
             System.out.println("Provided Interfaces: " + component.getProvidedInterfaces());
             System.out.println("Required Interfaces: " + component.getRequiredInterfaces());
-            System.out.println("Explicit Implementations: " + component.getExplicitImplementation());
+            System.out.println("Concrete Dependencies: " + component.getConcreteDependencies());
             System.out.println("Sub-Packages: " + component.getSubPackages().keySet());
             System.out.println();
         }
     }
 
-    public boolean hasExplicitImplementations() {
-        return componentMap.values().stream().anyMatch(c -> !c.getExplicitImplementation().isEmpty());
+    public boolean concreteDependencies() {
+        return componentMap.values().stream().anyMatch(c -> !c.getConcreteDependencies().isEmpty());
     }
 
     public void generateBadDesignReport() {
         System.out.println("This is a bad design. Explicit dependencies detected on concrete classes.");
         for (Component component : componentMap.values()) {
-            if (!component.getExplicitImplementation().isEmpty()) {
+            if (!component.getConcreteDependencies().isEmpty()) {
                 System.out.println("Component " + component.getName() +
-                        " has explicit dependencies on: " +
-                        component.getExplicitImplementation());
+                        " has concrete dependencies on: " +
+                        component.getConcreteDependencies());
             }
         }
     }
@@ -224,7 +224,7 @@ public class DependencyParser {
             parser.parseXML(xmlFile, jarFileName);
             parser.printComponents();
 
-            if (parser.hasExplicitImplementations()) {
+            if (parser.concreteDependencies()) {
                 parser.generateBadDesignReport();
             } else {
                 Scanner scanner = new Scanner(System.in);

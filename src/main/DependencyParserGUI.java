@@ -39,7 +39,7 @@ public class DependencyParserGUI extends Application {
         parser = new DependencyParser();
         executor = Executors.newSingleThreadExecutor();
 
-        primaryStage.setTitle("Dependency Parser");
+        primaryStage.setTitle("Component Diagram Generator");
 
         createUIComponents();
         Scene scene = createMainScene();
@@ -197,7 +197,7 @@ public class DependencyParserGUI extends Application {
                     parser.parseXML(new File(xmlPath), selectedJarFile.getAbsolutePath());
 
                     Platform.runLater(() -> {
-                        if (parser.hasExplicitImplementations()) {
+                        if (parser.concreteDependencies()) {
                             showBadDesignReport();
                         } else {
                             currentMaxDepth = parser.getGlobalMaxDepth();

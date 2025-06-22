@@ -8,7 +8,7 @@ public class Component {
     private Set<String> composedParts = new HashSet<>();
     private Set<String> providedInterfaces = new HashSet<>();
     private Set<String> requiredInterfaces = new HashSet<>();
-    private Set<String> explicitImplementation = new HashSet<>();
+    private Set<String> concreteDependencies = new HashSet<>();
 
     // Track sub-packages
     private Map<String, Component> subPackages = new HashMap<>();
@@ -52,8 +52,8 @@ public class Component {
         return requiredInterfaces;
     }
 
-    public Set<String> getExplicitImplementation() {
-        return explicitImplementation;
+    public Set<String> getConcreteDependencies() {
+        return concreteDependencies;
     }
 
     public void addClassImplementation(String className, String interfaceName) {
