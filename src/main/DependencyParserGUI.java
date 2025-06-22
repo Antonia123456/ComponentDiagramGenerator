@@ -197,7 +197,7 @@ public class DependencyParserGUI extends Application {
                     parser.parseXML(new File(xmlPath), selectedJarFile.getAbsolutePath());
 
                     Platform.runLater(() -> {
-                        if (parser.concreteDependencies()) {
+                        if (parser.hasConcreteDependencies()) {
                             showBadDesignReport();
                         } else {
                             currentMaxDepth = parser.getGlobalMaxDepth();

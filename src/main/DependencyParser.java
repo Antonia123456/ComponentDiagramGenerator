@@ -173,7 +173,7 @@ public class DependencyParser {
         }
     }
 
-    public boolean concreteDependencies() {
+    public boolean hasConcreteDependencies() {
         return componentMap.values().stream().anyMatch(c -> !c.getConcreteDependencies().isEmpty());
     }
 
@@ -224,7 +224,7 @@ public class DependencyParser {
             parser.parseXML(xmlFile, jarFileName);
             parser.printComponents();
 
-            if (parser.concreteDependencies()) {
+            if (parser.hasConcreteDependencies()) {
                 parser.generateBadDesignReport();
             } else {
                 Scanner scanner = new Scanner(System.in);
