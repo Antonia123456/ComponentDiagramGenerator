@@ -105,6 +105,8 @@ public class DependencyParserGUI extends Application {
         VBox root = new VBox(10, controlPanel, new Separator(), outputScroll);
         root.setPadding(new Insets(10));
 
+        VBox.setVgrow(outputScroll, Priority.ALWAYS);
+
         return new Scene(root, 900, 600);
     }
 
