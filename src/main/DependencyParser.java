@@ -205,7 +205,7 @@ public class DependencyParser {
 
     public static void main(String[] args) {
         try {
-
+            // File name used strictly as example
             String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\Licenta.jar";
 
             if (!new File(jarFileName).exists()) {
