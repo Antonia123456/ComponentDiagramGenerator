@@ -206,7 +206,7 @@ public class DependencyParser {
     public static void main(String[] args) {
         try {
             // File name used strictly as example
-            String jarFileName = "D:\\Licenta\\ComponentDiagramLicense\\src\\Licenta.jar";
+            String jarFileName = "D:\\Licenta\\ComponentDiagramGenerator\\src\\Licenta.jar";
 
             if (!new File(jarFileName).exists()) {
                 throw new FileNotFoundException("JAR file not found: " + jarFileName);
@@ -271,7 +271,7 @@ public class DependencyParser {
 
 
     protected static String saveAndGenerateDiagram(String plantUMLText, String baseFileName) throws IOException {
-        Path outputPath = Paths.get("D:\\Licenta\\ComponentDiagramLicense\\src");
+        Path outputPath = Paths.get("D:\\Licenta\\ComponentDiagramGenerator\\src");
         File pumlFile = new File(outputPath.resolve(baseFileName + ".puml").toString());
         try (FileWriter writer = new FileWriter(pumlFile)) {
             writer.write(plantUMLText);
@@ -282,7 +282,7 @@ public class DependencyParser {
 
 
     private static void generateDiagram(File pumlFile) throws IOException {
-        String plantUmlPath = "D:\\Licenta\\ComponentDiagramLicense\\src\\plantuml.jar";
+        String plantUmlPath = "D:\\Licenta\\ComponentDiagramGenerator\\src\\plantuml.jar";
 
         // Command to generate the diagram
         String command = String.format("java -jar \"%s\" \"%s\"",
